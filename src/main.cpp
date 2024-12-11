@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
 	std::string vidname = argv[1];
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:480\" -pix_fmt bgr24 -y \"D:\\source\\AsciiVideoEncoder\\tempfolder\\output_%04d.bmp\"";
+	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"D:\\source\\AsciiVideoEncoder\\tempfolder\\output_%04d.bmp\"";
 	std::cout << command << "\n";
 
 	int ffmpeg_result = system(command.c_str());
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
 
 	if (!unconverted)
 	{
-		std::string create_video = "ffmpeg -framerate 24 -i \"D:\\source\\AsciiVideoEncoder\\tempfolder\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -map 0:v:0 -map 1:a:0 -vf \"scale=1280:-2,setsar=1:1\" -c:v libx264 -r 24 \"D:\\source\\AsciiVideoEncoder\\tempfolder\\asciioutput.mkv\"";
+		std::string create_video = "ffmpeg -framerate 24 -i \"D:\\source\\AsciiVideoEncoder\\tempfolder\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v copy -r 24 \"D:\\source\\AsciiVideoEncoder\\tempfolder\\asciioutput.mkv\"";
 
 		int ffmpeg_video = system(create_video.c_str());
 
