@@ -34,7 +34,9 @@
             "displayName": "x64 Release",
             "inherits": "x64-debug",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS": "/Ox",
+                "CMAKE_C_FLAGS": "/Ox"
             }
         },
         {

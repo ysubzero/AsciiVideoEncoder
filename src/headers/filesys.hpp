@@ -27,4 +27,22 @@ namespace FSys
 		}
 		return files;
 	}
+
+	void deleteTemporary(const std::string& directory)
+	{
+		try
+		{
+			for (const auto& entry : fs::directory_iterator(directory))
+			{
+				if (fs::is_regular_file(entry) && entry.path().extension() == ".bmp")
+				{
+					fs::remove(entry.path());
+				}
+			}
+		}
+		catch(const fs::filesystem_error& e) 
+		{
+			std::cerr << "Error: " << e.what() << std::endl;
+		}
+	}
 }
