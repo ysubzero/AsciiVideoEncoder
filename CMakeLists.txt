@@ -12,7 +12,7 @@ endif()
 project ("AsciiVideoEncoder")
 
 # Add source to this project's executable.
-add_executable (AsciiVideoEncoder "src/main.cpp" "src/headers/AsciiVideoEncoder.hpp")
+add_executable (AsciiVideoEncoder "src/filesys.cpp" "src/bmp.cpp" "src/functions.cpp" "src/main.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET AsciiVideoEncoder PROPERTY CXX_STANDARD 20)

@@ -1,9 +1,8 @@
-﻿// AsciiVideoEncoder.cpp : Defines the entry point for the application.
-//
-
-#include "headers/AsciiVideoEncoder.hpp"
+﻿#include "headers/AsciiVideoEncoder.hpp"
 #include "headers/functions.hpp"
 #include <thread>
+#include <unordered_map>
+#include <functional>
 
 const uint32_t max_threads = std::thread::hardware_concurrency();
 
@@ -12,7 +11,7 @@ void ConvertFile(std::vector<std::string> split)
 	for (auto& file : split)
 	{
 		std::cout << "Converting " << file << " ";
-		ASC::FileToAsciiImage("D:\\source\\AsciiVideoEncoder\\tempfolder\\" + file, "D:\\source\\AsciiVideoEncoder\\tempfolder\\ASCII" + file);
+		ASC::FileToAsciiImage("D:\\source\\AsciiVideoEncoder\\tempfolder\\" + file, "D:\\source\\AsciiVideoEncoder\\tempfolder\\ASCII" + file, 4, 8);
 		std::cout << "Converted. \n";
 	}
 }
@@ -52,19 +51,12 @@ void thread(std::vector<std::thread>& threads, std::vector<std::string>& outputf
 	}
 }
 
-int main(int argc, char* argv[])
+void VideoToAsciiVideo(std::string vidname)
 {
 	std::string directory = "D:\\source\\AsciiVideoEncoder\\tempfolder\\";
 	std::vector<std::thread> threads;
 	threads.resize(max_threads);
 	bool unconverted = true;
-	if (argc < 2)
-	{
-		std::cerr << "Error: Usage wrong.";
-		return 1;
-	}
-
-	std::string vidname = argv[1];
 
 	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"D:\\source\\AsciiVideoEncoder\\tempfolder\\output_%04d.bmp\"";
 	std::cout << command << "\n";
@@ -73,7 +65,7 @@ int main(int argc, char* argv[])
 
 	if (ffmpeg_result != 0) {
 		std::cerr << "Error: FFmpeg command failed." << std::endl;
-		return 1;
+		return;
 	}
 	else
 	{
@@ -95,11 +87,59 @@ int main(int argc, char* argv[])
 
 		if (ffmpeg_video != 0) {
 			std::cerr << "Error: FFmpeg command failed." << std::endl;
-			return 1;
+			return;
 		}
 	}
 
 	FSys::deleteTemporary(directory);
+	return;
+}
+
+void ConvertImageToAsciiImage(std::string vidname)
+{
+	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 D:\\source\\AsciiVideoEncoder\\tempfolder\\images\\input.bmp\"";
+	std::cout << command << "\n";
+
+	int ffmpeg_result = system(command.c_str());
+
+	std::cout << "Converted.\n";
+
+	ASC::FileToAsciiImage("D:\\source\\AsciiVideoEncoder\\tempfolder\\images\\input.bmp", "D:\\source\\AsciiVideoEncoder\\tempfolder\\images\\output.bmp", 4 , 8);
+	std::cout << "Done.\n";
+	return;
+}
+
+int main(int argc, char* argv[])
+{
+	std::unordered_map<std::string, std::function<void(std::string)>> functionMap;
+	functionMap["-v"] = VideoToAsciiVideo;
+	functionMap["-i"] = ConvertImageToAsciiImage;
+
+	if (argc > 3)
+	{
+		std::cerr << "Too many arguments.";
+		return 1;
+	}
+
+	if (argc < 3)
+	{
+		std::cerr << "Not enough arguments.";
+		return 1;
+	}
+
+	std::string userinput = argv[1];
+
+	std::string vidname = argv[2];
+
+	if (functionMap.find(userinput) != functionMap.end())
+	{
+		functionMap[userinput](vidname);
+	}
+	else
+	{
+		std::cerr << "Not a function.";
+		return 1;
+	}
 
 	return 0;
 }
