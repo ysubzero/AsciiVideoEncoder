@@ -1,3 +1,7 @@
+# Requirements
+
+You need ffmpeg for this to work.
+
 # Installation
 
 Check the releases tab.
