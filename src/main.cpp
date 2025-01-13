@@ -154,9 +154,3 @@ int main(int argc, char* argv[])
 	std::cout << "\n Saved to " << homefolder;
 	return 0;
 }
-
-/*int main()
-{
-	ASC::FileToAsciiImage("C:\\Users\\Jandy\\Pictures\\wallpapers\\skeletonflipped.bmp", "C:\\Users\\Jandy\\Pictures\\wallpapers\\asciiskeletonflipped.bmp");
-	return 0;
-}*/
