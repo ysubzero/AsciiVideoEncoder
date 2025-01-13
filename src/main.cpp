@@ -11,7 +11,7 @@ void ConvertFile(std::vector<std::string> split)
 	for (auto& file : split)
 	{
 		std::cout << "Converting " << file << " ";
-		ASC::FileToAsciiImage("D:\\source\\AsciiVideoEncoder\\tempfolder\\" + file, "D:\\source\\AsciiVideoEncoder\\tempfolder\\ASCII" + file, 4, 8);
+		ASC::FileToAsciiImage("C:\\AsciiVideoEncoder\\" + file, "C:\\AsciiVideoEncoder\\ASCII" + file, 4, 8);
 		std::cout << "Converted. \n";
 	}
 }
@@ -53,12 +53,12 @@ void thread(std::vector<std::thread>& threads, std::vector<std::string>& outputf
 
 void VideoToAsciiVideo(std::string vidname)
 {
-	std::string directory = "D:\\source\\AsciiVideoEncoder\\tempfolder\\";
+	std::string directory = "C:\\AsciiVideoEncoder\\";
 	std::vector<std::thread> threads;
 	threads.resize(max_threads);
 	bool unconverted = true;
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"D:\\source\\AsciiVideoEncoder\\tempfolder\\output_%04d.bmp\"";
+	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"C:\\AsciiVideoEncoder\\output_%04d.bmp\"";
 	std::cout << command << "\n";
 
 	int ffmpeg_result = system(command.c_str());
@@ -81,7 +81,7 @@ void VideoToAsciiVideo(std::string vidname)
 
 	if (!unconverted)
 	{
-		std::string create_video = "ffmpeg -framerate 24 -i \"D:\\source\\AsciiVideoEncoder\\tempfolder\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"D:\\source\\AsciiVideoEncoder\\tempfolder\\asciioutput.mkv\"";
+		std::string create_video = "ffmpeg -framerate 24 -i \"C:\\AsciiVideoEncoder\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"C:\\AsciiVideoEncoder\\asciioutput.mkv\"";
 
 		int ffmpeg_video = system(create_video.c_str());
 
@@ -97,20 +97,30 @@ void VideoToAsciiVideo(std::string vidname)
 
 void ConvertImageToAsciiImage(std::string vidname)
 {
-	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 D:\\source\\AsciiVideoEncoder\\tempfolder\\images\\input.bmp\"";
+	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 C:\\AsciiVideoEncoder\\images\\input.bmp\"";
 	std::cout << command << "\n";
 
 	int ffmpeg_result = system(command.c_str());
 
 	std::cout << "Converted.\n";
 
-	ASC::FileToAsciiImage("D:\\source\\AsciiVideoEncoder\\tempfolder\\images\\input.bmp", "D:\\source\\AsciiVideoEncoder\\tempfolder\\images\\output.bmp", 4 , 8);
+	ASC::FileToAsciiImage("C:\\AsciiVideoEncoder\\images\\input.bmp", "C:\\AsciiVideoEncoder\\images\\output.bmp", 4 , 8);
 	std::cout << "Done.\n";
 	return;
 }
 
 int main(int argc, char* argv[])
 {
+	std::string homefolder = "C:\\AsciiVideoEncoder";
+	if (!fs::exists(homefolder)) 
+	{
+		fs::create_directory(homefolder);
+	}
+	if (!fs::exists(homefolder + "\\images"))
+	{
+		fs::create_directory(homefolder + "\\images");
+	}
+
 	std::unordered_map<std::string, std::function<void(std::string)>> functionMap;
 	functionMap["-v"] = VideoToAsciiVideo;
 	functionMap["-i"] = ConvertImageToAsciiImage;
@@ -141,6 +151,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	std::cout << "\n Saved to " << homefolder;
 	return 0;
 }
 
