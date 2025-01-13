@@ -4,7 +4,7 @@ Check the releases tab.
 
 # Running the app
 
-Once you have placed it into a folder, run it in the command terminal with the following argument:
+Once you have placed it into a folder, run it in the command terminal with the following arguments:
 
 
 argv[0] =
