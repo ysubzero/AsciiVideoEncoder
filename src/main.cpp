@@ -1,5 +1,7 @@
 ﻿#include "headers/AsciiVideoEncoder.hpp"
 #include "headers/functions.hpp"
+#include <pwd.h>
+#include <unistd.h> 
 
 const uint32_t max_threads = std::thread::hardware_concurrency();
 
@@ -23,7 +25,7 @@ void ConvertFile(std::vector<std::string> split, std::string directory)
 {
 	for (auto& file : split)
 	{
-		ASC::FileToAsciiImage(directory + "\\" + file, directory + "\\ASCII" + file, 4, 8);
+		ASC::FileToAsciiImage(directory + "/" + file, directory + "/ASCII" + file, 4, 8);
 		std::print("{0} {1}{2}", "Converted", file, "\n");
 	}
 }
@@ -64,7 +66,7 @@ int VideoToAsciiVideo(std::string vidname, std::string directory)
 	threads.resize(max_threads);
 	bool unconverted = true;
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
+	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "/output_%04d.bmp\"";
 	std::print("{0}{1}", command, "\n");
 
 	int ffmpeg_result = system(command.c_str());
@@ -89,7 +91,7 @@ int VideoToAsciiVideo(std::string vidname, std::string directory)
 
 	if (!unconverted)
 	{
-		std::string create_video = "ffmpeg -framerate 24 -i \"" + directory + "\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "\\asciioutput.mkv\"";
+		std::string create_video = "ffmpeg -framerate 24 -i \"" + directory + "/ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "/asciioutput.mkv\"";
 
 		int ffmpeg_video = system(create_video.c_str());
 
@@ -112,7 +114,7 @@ int ConvertImageToAsciiImage(std::string vidname, std::string directory)
 		return 1;
 	}
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
+	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 -y \"" + directory + "/images/input.bmp\"";
 	std::print("{0}{1}", command, "\n");
 
 	int ffmpeg_result = system(command.c_str());
@@ -125,7 +127,7 @@ int ConvertImageToAsciiImage(std::string vidname, std::string directory)
 
 	std::print("Converted.\n");
 
-	ASC::FileToAsciiImage(directory + "\\images\\input.bmp", directory + "\\images\\output.bmp", 4 , 8);
+	ASC::FileToAsciiImage(directory + "/images/input.bmp", directory + "/images/output.bmp", 4 , 8);
 	std::print("Done.\n");
 	return 0;
 }
@@ -142,7 +144,7 @@ int VideoToConsole(std::string vidname, std::string directory)
 	threads.resize(max_threads);
 	bool unconverted = true;
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:480\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
+	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:480\" -pix_fmt bgr24 -y \"" + directory + "/output_%04d.bmp\"";
 	std::print("{0}{1}", command ,"\n");
 
 	int ffmpeg_result = system(command.c_str());
@@ -160,7 +162,7 @@ int VideoToConsole(std::string vidname, std::string directory)
 
 		for (auto& s : outputfiles)
 		{
-			ASC::FileToConsole(directory + "\\" + s, 8, 16);
+			ASC::FileToConsole(directory + "/" + s, 8, 16);
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000/25));
 		}
 	}
@@ -178,7 +180,7 @@ int ImageToText(std::string vidname, std::string directory)
 		return 1;
 	}
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
+	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 -y \"" + directory + "/images/input.bmp\"";
 	std::print("{0}{1}", command, "\n");
 
 	int ffmpeg_result = system(command.c_str());
@@ -191,7 +193,7 @@ int ImageToText(std::string vidname, std::string directory)
 
 	std::print("Converted.\n");
 
-	ASC::FileToTxt(directory + "\\images\\input.bmp", directory + "\\images\\output.txt", 4, 8);
+	ASC::FileToTxt(directory + "/images/input.bmp", directory + "/images/output.txt", 4, 8);
 	std::print("Done.\n");
 	return 0;
 }
@@ -202,10 +204,12 @@ int main(int argc, char* argv[])
 
 	std::ifstream settings("settings.txt");
 
+	struct passwd *pw = getpwuid(getuid());
+
 	if (!settings) 
 	{
 		std::print("No settings found. Creating default settings.\n");
-		homefolder = "C:\\AsciiVideoEncoder";
+		homefolder = std::string(pw->pw_dir) + "/AsciiVideoEncoder";
 		std::ofstream set("settings.txt");
 		std::print(set,"{0}", homefolder);
 		set.close();
@@ -217,19 +221,11 @@ int main(int argc, char* argv[])
 		settings.close();
 	}
 
-	fs::path homeDir(homefolder);
-
-	if (homefolder.empty() || !fs::is_directory(homeDir))
-	{
-		std::print("Invalid Home Folder! Check your settings!\n");
-		return 1;
-	}
-
 	if (!fs::exists(homefolder)) 
 	{fs::create_directory(homefolder);}
 
-	if (!fs::exists(homefolder + "\\images"))
-	{fs::create_directory(homefolder + "\\images");}
+	if (!fs::exists(homefolder + "/images"))
+	{fs::create_directory(homefolder + "/images");}
 
 	std::print("Clearing cache...\n");
 	FSys::deleteTemporary(homefolder);

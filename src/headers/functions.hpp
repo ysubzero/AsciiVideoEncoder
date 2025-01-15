@@ -1,5 +1,5 @@
 #pragma once
-#include "headers/AsciiVideoEncoder.hpp"
+#include "AsciiVideoEncoder.hpp"
 
 void clearScreen();
 
