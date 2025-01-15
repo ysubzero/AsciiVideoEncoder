@@ -9,7 +9,7 @@
 		// Linux or macOS
 		system("clear");
 	#else
-		std::cerr << "Unknown operating system" << std::endl;
+		std::cerr << "Unknown operating system.";
 	#endif
 	}
 
@@ -60,7 +60,7 @@
 			}
 			result += "\n";
 		}
-		std::cout << result;
+		std::print("{0}", result);
 	}
 
 	void ASC::FileToTxt(std::string filename, std::string outputname, int detail_x, int detail_y)
@@ -120,7 +120,7 @@
 		}
 
 		std::ofstream outfile(outputname);
-		outfile << result;
+		std::print(outfile, "{0}", result);
 		outfile.close();
 	}
 
@@ -313,13 +313,14 @@
 
 		std::ofstream outputFile(path, std::ios::binary);
 
-		if (outputFile.is_open()) {
+		if (outputFile.is_open()) 
+		{
 			outputFile.write(reinterpret_cast<const char*>(bmp.data()), bmp.size());
 			outputFile.close();
 		}
 		else
 		{
-			std::cerr << "Error: Could not open output file." << std::endl;
+			std::print(std::cerr,"Error: Could not open output file.");
 		}
 	}
 

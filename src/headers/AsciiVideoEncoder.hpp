@@ -13,4 +13,9 @@
 #include <stdexcept>
 #include "ascii.hpp"
 #include "filesys.hpp"
+#include <print>
+#include <thread>
+#include <unordered_map>
+#include <functional>
+#include <chrono>
 

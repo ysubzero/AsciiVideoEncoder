@@ -1,9 +1,5 @@
 ﻿#include "headers/AsciiVideoEncoder.hpp"
 #include "headers/functions.hpp"
-#include <thread>
-#include <unordered_map>
-#include <functional>
-#include <chrono>
 
 const uint32_t max_threads = std::thread::hardware_concurrency();
 
@@ -14,7 +10,7 @@ bool video(std::string vidname)
 	size_t dotPos = vidname.rfind('.');
 	if (dotPos == std::string::npos)
 	{
-		std::cerr << "Invalid File";
+		std::print(std::cerr, "Invalid file.\n");
 		return false;
 	}
 
@@ -27,9 +23,8 @@ void ConvertFile(std::vector<std::string> split, std::string directory)
 {
 	for (auto& file : split)
 	{
-		std::cout << "Converting " << file << " ";
 		ASC::FileToAsciiImage(directory + "\\" + file, directory + "\\ASCII" + file, 4, 8);
-		std::cout << "Converted. \n";
+		std::print("{0} {1}{2}", "Converted", file, "\n");
 	}
 }
 
@@ -42,37 +37,26 @@ void thread(std::vector<std::thread>& threads, std::vector<std::string>& outputf
 	for (int i = 0; i < max_threads; i++)
 	{
 		std::vector<std::string> vector;
-		if (i <= max_threads - 1)
-		{
-			vector.insert(vector.end(), outputfiles.begin() + (i * vect_size), outputfiles.begin() + ((i + 1) * vect_size));
-		}
-		else
-		{
-			vector.insert(vector.end(), outputfiles.begin() + (i * vect_size), outputfiles.end());
-		}
+
+		if (i <= max_threads - 1) 
+		{vector.insert(vector.end(), outputfiles.begin() + (i * vect_size), outputfiles.begin() + ((i + 1) * vect_size));}
+
+		else 
+		{vector.insert(vector.end(), outputfiles.begin() + (i * vect_size), outputfiles.end());}
 
 		vectorvector.push_back(vector);
 	}
 
-	for (int i = 0; i < max_threads; ++i)
-	{
-		threads.emplace_back(ConvertFile, vectorvector[i], directory);
-	}
+	for (int i = 0; i < max_threads; ++i) {threads.emplace_back(ConvertFile, vectorvector[i], directory);}
 
-	for (auto& t : threads)
-	{
-		if (t.joinable())
-		{
-			t.join();
-		}
-	}
+	for (auto& t : threads) {if (t.joinable()) { t.join(); }}
 }
 
 int VideoToAsciiVideo(std::string vidname, std::string directory)
 {
 	if (!video(vidname))
 	{
-		std::cerr << "Invalid Type\n";
+		std::print(std::cerr, "Invalid Type\n");
 		return 1;
 	}
 
@@ -81,23 +65,25 @@ int VideoToAsciiVideo(std::string vidname, std::string directory)
 	bool unconverted = true;
 
 	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
-	std::cout << command << "\n";
+	std::print("{0}{1}", command, "\n");
 
 	int ffmpeg_result = system(command.c_str());
 
-	if (ffmpeg_result != 0) {
-		std::cerr << "Error: FFmpeg command failed." << std::endl;
+	if (ffmpeg_result != 0) 
+	{
+		std::print(std::cerr, "ffmpeg failed.\n");
 		return 1;
 	}
+
 	else
 	{
-		std::cout << "Command executed successfully!" << "\n";
+		std::print("Command executed successfully!\n");
 
 		std::vector<std::string> outputfiles = FSys::OutputFiles(directory);
 
 		thread(threads, outputfiles, directory);
 
-		std::cout << "Done.";
+		std::print("Done.\n");
 		unconverted = false;
 	}
 
@@ -107,8 +93,9 @@ int VideoToAsciiVideo(std::string vidname, std::string directory)
 
 		int ffmpeg_video = system(create_video.c_str());
 
-		if (ffmpeg_video != 0) {
-			std::cerr << "Error: FFmpeg command failed." << std::endl;
+		if (ffmpeg_video != 0) 
+		{
+			std::print(std::cerr, "ffmpeg failed.\n");
 			return 1;
 		}
 	}
@@ -121,19 +108,25 @@ int ConvertImageToAsciiImage(std::string vidname, std::string directory)
 {
 	if (video(vidname))
 	{
-		std::cerr << "Invalid Type\n";
+		std::print(std::cerr, "Invalid Type\n");
 		return 1;
 	}
 
 	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
-	std::cout << command << "\n";
+	std::print("{0}{1}", command, "\n");
 
 	int ffmpeg_result = system(command.c_str());
 
-	std::cout << "Converted.\n";
+	if (ffmpeg_result != 0) 
+	{
+		std::print(std::cerr, "ffmpeg failed.\n");
+		return 1;
+	}
+
+	std::print("Converted.\n");
 
 	ASC::FileToAsciiImage(directory + "\\images\\input.bmp", directory + "\\images\\output.bmp", 4 , 8);
-	std::cout << "Done.\n";
+	std::print("Done.\n");
 	return 0;
 }
 
@@ -141,7 +134,7 @@ int VideoToConsole(std::string vidname, std::string directory)
 {
 	if (!video(vidname))
 	{
-		std::cerr << "Invalid Type\n";
+		std::print(std::cerr, "Invalid Type\n");
 		return 1;
 	}
 
@@ -150,17 +143,19 @@ int VideoToConsole(std::string vidname, std::string directory)
 	bool unconverted = true;
 
 	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:480\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
-	std::cout << command << "\n";
+	std::print("{0}{1}", command ,"\n");
 
 	int ffmpeg_result = system(command.c_str());
 
-	if (ffmpeg_result != 0) {
-		std::cerr << "Error: FFmpeg command failed." << std::endl;
+	if (ffmpeg_result != 0) 
+	{
+		std::print(std::cerr, "ffmpeg failed.\n");
 		return 1;
 	}
+
 	else
 	{
-		std::cout << "Command executed successfully!" << "\n";
+		std::print("Command executed successfully!\n");
 		std::vector<std::string> outputfiles = FSys::OutputFiles(directory);
 
 		for (auto& s : outputfiles)
@@ -179,19 +174,25 @@ int ImageToText(std::string vidname, std::string directory)
 {
 	if (video(vidname))
 	{
-		std::cout << "Invalid Type\n";
+		std::cerr << "Invalid Type\n";
 		return 1;
 	}
 
 	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
-	std::cout << command << "\n";
+	std::print("{0}{1}", command, "\n");
 
 	int ffmpeg_result = system(command.c_str());
 
-	std::cout << "Converted.\n";
+	if (ffmpeg_result != 0) 
+	{
+		std::print(std::cerr, "ffmpeg failed.\n");
+		return 1;
+	}
+
+	std::print("Converted.\n");
 
 	ASC::FileToTxt(directory + "\\images\\input.bmp", directory + "\\images\\output.txt", 4, 8);
-	std::cout << "Done.\n";
+	std::print("Done.\n");
 	return 0;
 }
 
@@ -203,15 +204,15 @@ int main(int argc, char* argv[])
 
 	if (!settings) 
 	{
-		std::cout << "No settings found. Creating default settings.\n";
+		std::print("No settings found. Creating default settings.\n");
 		homefolder = "C:\\AsciiVideoEncoder";
 		std::ofstream set("settings.txt");
-		set << homefolder;
+		std::print(set,"{0}", homefolder);
 		set.close();
 	}
 	else
 	{
-		std::cout << "Settings found.\n";
+		std::print("Settings found.\n");
 		std::getline(settings, homefolder);
 		settings.close();
 	}
@@ -220,19 +221,17 @@ int main(int argc, char* argv[])
 
 	if (homefolder.empty() || !fs::is_directory(homeDir))
 	{
-		std::cout << "Invalid Home Folder! Check your settings!\n";
+		std::print("Invalid Home Folder! Check your settings!\n");
 		return 1;
 	}
 
 	if (!fs::exists(homefolder)) 
-	{
-		fs::create_directory(homefolder);
-	}
-	if (!fs::exists(homefolder + "\\images"))
-	{
-		fs::create_directory(homefolder + "\\images");
-	}
+	{fs::create_directory(homefolder);}
 
+	if (!fs::exists(homefolder + "\\images"))
+	{fs::create_directory(homefolder + "\\images");}
+
+	std::print("Clearing cache...\n");
 	FSys::deleteTemporary(homefolder);
 
 	std::unordered_map<std::string, std::function<int(std::string, std::string)>> functionMap;
@@ -243,13 +242,13 @@ int main(int argc, char* argv[])
 
 	if (argc > 3)
 	{
-		std::cerr << "Too many arguments.";
+		std::print(std::cerr, "Too many arguments.");
 		return 1;
 	}
 
 	if (argc < 3)
 	{
-		std::cerr << "Not enough arguments.";
+		std::print(std::cerr, "Not enough arguments.");
 		return 1;
 	}
 
@@ -265,24 +264,21 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		std::cerr << "Not a function.";
+		std::print(std::cerr, "Not a function.");
 		return 1;
 	}
 
 	if (result == 1)
 	{
-		std::cerr << "Failed";
+		std::print(std::cerr, "Failed.");
 		return 1;
 	}
 
 	if (userinput != "-c")
-	{
-		std::cout << "\nSaved to " << homefolder;
-	}
+	{std::print("{0} {1}", "\nSaved to", homefolder);}
+
 	else
-	{
-		std::cout << "Playback done";
-	}
+	{std::print("Playback done.");}
 
 	return 0;
 }

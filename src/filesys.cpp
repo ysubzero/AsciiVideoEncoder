@@ -34,6 +34,7 @@ void FSys::deleteTemporary(const std::string& directory)
 	}
 	catch (const fs::filesystem_error& e)
 	{
-		std::cerr << "Error: " << e.what() << std::endl;
+		std::print(std::cerr, "{0} {1}", "Error:",e.what());
+		return;
 	}
 }
