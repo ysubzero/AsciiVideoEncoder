@@ -1,20 +1,18 @@
 #pragma once
 #include "headers/AsciiVideoEncoder.hpp"
 
+void clearScreen();
+
 namespace ASC
 {
-	void printASCII(BMPPixel& bmppixel);
+	void consoleASCII(BMPPixel& bmppixel);
 
-	std::vector<std::string> ImageToAscii(BMPPixel& bmppixel);
-
-	void AsciiToImage(std::vector<std::string>& strings, BMPPixel& bmppixel, std::string path);
+	void FileToTxt(std::string inputfile, std::string outputname, int detail_x, int detail_y);
 
 	void BMPToAsciiImage(BMPPixel& bmppixel, std::string path);
 
-	void ImageToAsciiToImage(BMPPixel& bmppixel, std::string path);
-
-	void ImageToAsciiImage(BMPPixel& bmppixel, std::string path);
-
 	void FileToAsciiImage(std::string filename, std::string outfilename, int detail_x, int detail_y);
+
+	void FileToConsole(std::string filename, int detail_x, int detail_y);
 }
 
