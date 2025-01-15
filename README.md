@@ -24,6 +24,10 @@ argv[1] =
 
 Input your filename in quotations. "C:\Folder\video.mp4".
 
+# Settings
+
+Go to the folder of the executable and change settings.txt to change your preferred output folder.
+
 # Crashes
 
 If the program crashes or if you exit out early, run the program again without any arguments to clear out any temporary bmps.
