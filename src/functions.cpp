@@ -17,14 +17,10 @@
 	{
 		clearScreen();
 		std::string result = "";
-		for (int row = 0; row < bmppixel.pixelArrayRows; ++row)
+		for (int row{ 0 }; row < bmppixel.pixelArrayRows; ++row)
 		{
-			for (int i = (row + 1) * bmppixel.pixelArrayColumns - 1; i >= row * bmppixel.pixelArrayColumns; --i)
+			for (int i{ (row + 1) * bmppixel.pixelArrayColumns - 1 }; i >= row * bmppixel.pixelArrayColumns; --i)
 			{
-				if (i < 0)
-				{
-					break;
-				}
 				if (bmppixel.PixelArrayData[i].AverageIntensity < 25)
 				{
 					result += " ";
@@ -135,8 +131,7 @@
 		const Cha::Plus plus;
 		const Cha::Space space;
 #pragma region Header Data
-		BMPHeader& header = bmppixel.bmp.header;
-		uint16_t  type = header.type;
+		uint16_t  type = 0x4D42;
 		uint16_t  reserved1 = 0;
 		uint16_t  reserved2 = 0;
 		uint32_t  offset = 54;
@@ -237,11 +232,11 @@
 
 		std::vector<uint8_t> data;
 
-		for (int row = bmppixel.pixelArrayRows - 1; row >= 0; --row)
+		for (int row{ bmppixel.pixelArrayRows - 1 }; row >= 0; --row)
 		{
-			for (int j = 0; j < 16; j++)
+			for (int j{ 0 }; j < 16; j++)
 			{
-				for (int i = (row + 1) * bmppixel.pixelArrayColumns - 1; i >= row * bmppixel.pixelArrayColumns; --i)
+				for (int i{ (row + 1) * bmppixel.pixelArrayColumns - 1 }; i >= row * bmppixel.pixelArrayColumns; --i)
 				{
 					if (i < 0)
 					{

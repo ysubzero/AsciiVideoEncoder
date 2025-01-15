@@ -35,8 +35,6 @@ struct Pixel
 	uint8_t Red;
 	uint8_t Green;
 	uint8_t Blue;
-	uint8_t Intensity;
-
 	Pixel(uint8_t _Red, uint8_t _Green, uint8_t _Blue);
 
 	friend std::ostream& operator<<(std::ostream& os, const Pixel& p);
@@ -54,6 +52,8 @@ struct PixelArray
 	uint8_t AverageIntensity;
 
 	PixelArray(std::vector<Pixel>& _PixelMap);
+
+	PixelArray(std::vector<Pixel>& _PixelMap, uint8_t _avgred, uint8_t _avggreen, uint8_t _avgblue, uint8_t _avgint);
 };
 
 struct BMPPixel
@@ -67,8 +67,8 @@ struct BMPPixel
 	const int RowsPerArray;
 	const int ColumnsPerArray;
 
-	uint32_t pixelArrayRows = 0;
-	uint32_t pixelArrayColumns = 0;
+	int pixelArrayRows = 0;
+	int pixelArrayColumns = 0;
 
 	BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray);
 };

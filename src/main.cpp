@@ -161,7 +161,7 @@ int VideoToConsole(std::string vidname, std::string directory)
 		for (auto& s : outputfiles)
 		{
 			ASC::FileToConsole(directory + "\\" + s, 8, 16);
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000/27));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000/25));
 		}
 	}
 

@@ -30,7 +30,7 @@ BMP::BMP(const std::vector<uint8_t>& RawData)
 	header.important_colors = static_cast<uint32_t>(RawData[50]) | (static_cast<uint32_t>(RawData[51]) << 8) |
 		(static_cast<uint32_t>(RawData[52]) << 16) | (static_cast<uint32_t>(RawData[53]) << 24);
 
-	for (int i = 54; i < RawData.size(); i++)
+	for (int i{ 54 }; i < RawData.size(); i++)
 	{
 		BMPData.push_back(RawData[i]);
 	}
@@ -40,35 +40,16 @@ Pixel::Pixel(uint8_t _Red, uint8_t _Green, uint8_t _Blue):
 	Red(_Red),
 	Green(_Green),
 	Blue(_Blue)
-{
-	Intensity = static_cast<uint8_t>(0.2126 * Red + 0.7152 * Green + 0.0722 * Blue);
-}
+{}
 
-PixelArray::PixelArray(std::vector<Pixel>& _PixelMap) :
+PixelArray::PixelArray(std::vector<Pixel>& _PixelMap, uint8_t _avgred, uint8_t _avggreen, uint8_t _avgblue, uint8_t _avgint) :
 	PixelMap(_PixelMap),
-	AverageRed(0),
-	AverageGreen(0),
-	AverageBlue(0),
-	AverageIntensity(0)
+	AverageRed(_avgred),
+	AverageGreen(_avggreen),
+	AverageBlue(_avgblue),
+	AverageIntensity(_avgint)
 {
 	if (PixelMap.empty()) return;
-	uint32_t SumRed = 0;
-	uint32_t SumGreen = 0;
-	uint32_t SumBlue = 0;
-	uint32_t SumIntensity = 0;
-
-	for (int i = 0; i < PixelMap.size(); i++)
-	{
-		SumRed += PixelMap[i].Red;
-		SumGreen += PixelMap[i].Green;
-		SumBlue += PixelMap[i].Blue;
-		SumIntensity += PixelMap[i].Intensity;
-	}
-
-	AverageRed = SumRed / PixelMap.size();
-	AverageGreen = SumGreen / PixelMap.size();
-	AverageBlue = SumBlue / PixelMap.size();
-	AverageIntensity = SumIntensity / PixelMap.size();
 }
 
 BMPPixel::BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray) :
@@ -109,18 +90,32 @@ BMPPixel::BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArra
 			std::vector<Pixel> PixArray;
 			PixArray.push_back(PixelData[j]);
 
+			uint32_t SumRed = 0;
+			uint32_t SumGreen = 0;
+			uint32_t SumBlue = 0;
+
 			for (int k = 0; k < RowsPerArray; k++)
 			{
 				for (int l = 0; l < 16; l++)
 				{
 					if (j + (l * bmp.header.width_px) + k < PixelData.size())
 					{
-						PixArray.push_back(PixelData[j + (l * bmp.header.width_px) + k]);
+						Pixel& pix = PixelData[j + (l * bmp.header.width_px) + k];
+						SumRed += pix.Red;
+						SumGreen += pix.Green;
+						SumBlue += pix.Blue;
+
+						PixArray.push_back(pix);
 					}
 				}
 			}
 
-			PixelArray PixArr(PixArray);
+			uint8_t AverageRed = SumRed / PixArray.size();
+			uint8_t AverageGreen = SumGreen / PixArray.size();
+			uint8_t AverageBlue = SumBlue / PixArray.size();
+			uint8_t AverageIntensity = static_cast<uint32_t>(0.2126 * SumRed + 0.7152 * SumGreen + 0.0722 * SumBlue) / PixArray.size();
+
+			PixelArray PixArr(PixArray, AverageRed, AverageGreen, AverageBlue, AverageIntensity);
 
 			PixelArrayData.push_back(PixArr);
 			pixelArrayColumns++;
@@ -135,3 +130,32 @@ std::ostream& operator<<(std::ostream& os, const Pixel& p)
 	os << "R:" << static_cast<int>(p.Red) << " G:" << static_cast<int>(p.Green) << " B:" << static_cast<int>(p.Blue);
 	return os;
 }
+
+#pragma region deprecated
+
+PixelArray::PixelArray(std::vector<Pixel>& _PixelMap) :
+	PixelMap(_PixelMap),
+	AverageRed(0),
+	AverageGreen(0),
+	AverageBlue(0),
+	AverageIntensity(0)
+{
+	if (PixelMap.empty()) return;
+	uint32_t SumRed = 0;
+	uint32_t SumGreen = 0;
+	uint32_t SumBlue = 0;
+
+	for (auto& pixel : PixelMap)
+	{
+		SumRed += pixel.Red;
+		SumGreen += pixel.Green;
+		SumBlue += pixel.Blue;
+	}
+
+	AverageRed = SumRed / PixelMap.size();
+	AverageGreen = SumGreen / PixelMap.size();
+	AverageBlue = SumBlue / PixelMap.size();
+	AverageIntensity = static_cast<uint32_t>(0.2126 * SumRed + 0.7152 * SumGreen + 0.0722 * SumBlue) / PixelMap.size();
+}
+
+#pragma endregion
