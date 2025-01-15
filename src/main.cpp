@@ -219,12 +219,6 @@ int main(int argc, char* argv[])
 
 	fs::path homeDir(homefolder);
 
-	if (homefolder.empty() || !fs::is_directory(homeDir))
-	{
-		std::print("Invalid Home Folder! Check your settings!\n");
-		return 1;
-	}
-
 	if (!fs::exists(homefolder)) 
 	{fs::create_directory(homefolder);}
 
