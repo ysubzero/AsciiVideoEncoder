@@ -68,10 +68,10 @@ BMPPixel::BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArra
 		padding = 4 - (rowWidth % 4);
 		rowWidth += padding;
 	}
-	for (int i = 0; i < bmp.header.height_px; i++)
+	for (int i = 0; i < bmp.header.height_px; ++i)
 	{
 		std::vector<uint8_t> rowData;
-		for (int j = 0; j < rowWidth - padding; j++)
+		for (int j = 0; j < rowWidth - padding; ++j)
 		{
 			rowData.push_back(TempData[j]);
 		}
@@ -94,7 +94,7 @@ BMPPixel::BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArra
 			uint32_t SumGreen = 0;
 			uint32_t SumBlue = 0;
 
-			for (int k = 0; k < RowsPerArray; k++)
+			for (int k = 0; k < RowsPerArray; ++k)
 			{
 				for (int l = 0; l < 16; l++)
 				{

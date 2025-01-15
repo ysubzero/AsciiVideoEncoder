@@ -34,7 +34,7 @@ void thread(std::vector<std::thread>& threads, std::vector<std::string>& outputf
 
 	std::vector<std::vector<std::string>> vectorvector;
 
-	for (int i = 0; i < max_threads; i++)
+	for (int i = 0; i < max_threads; ++i)
 	{
 		std::vector<std::string> vector;
 
