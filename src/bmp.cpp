@@ -30,21 +30,38 @@ BMP::BMP(const std::vector<uint8_t>& RawData)
 	header.important_colors = static_cast<uint32_t>(RawData[50]) | (static_cast<uint32_t>(RawData[51]) << 8) |
 		(static_cast<uint32_t>(RawData[52]) << 16) | (static_cast<uint32_t>(RawData[53]) << 24);
 
-	BMPData.resize(RawData.size() - 54);
 
-	for (int i{ 54 }; i < RawData.size(); i++)
+	const uint64_t bytesperpixel = 3;
+
+	uint64_t rowWidth = header.width_px * bytesperpixel;
+	uint64_t padding = 0;
+	if (rowWidth % 4 != 0)
 	{
-		BMPData[i - 54] = RawData[i];
+		padding = 4 - (rowWidth % 4);
+		rowWidth += padding;
+	}
+
+	{
+		int iter = 0;
+		BMPData.resize(header.height_px * (rowWidth - padding));
+		for (int i = 0; i < header.height_px; ++i)
+		{
+			for (int j = i * rowWidth; j < (i * rowWidth) + rowWidth - padding; ++j)
+			{
+				BMPData[iter] = RawData[j+54];
+				iter++;
+			}
+		}
 	}
 }
 
-Pixel::Pixel(uint8_t _Red, uint8_t _Green, uint8_t _Blue):
+Pixel::Pixel(const uint8_t _Red, const uint8_t _Green, const uint8_t _Blue):
 	Red(_Red),
 	Green(_Green),
 	Blue(_Blue)
 {}
 
-PixelArray::PixelArray(std::vector<Pixel>& _PixelMap, uint8_t _avgred, uint8_t _avggreen, uint8_t _avgblue, uint8_t _avgint) :
+PixelArray::PixelArray(const std::vector<Pixel>& _PixelMap, const uint8_t _avgred, const uint8_t _avggreen, const uint8_t _avgblue, const uint8_t _avgint) :
 	PixelMap(_PixelMap),
 	AverageRed(_avgred),
 	AverageGreen(_avggreen),
@@ -54,36 +71,13 @@ PixelArray::PixelArray(std::vector<Pixel>& _PixelMap, uint8_t _avgred, uint8_t _
 	if (PixelMap.empty()) return;
 }
 
-BMPPixel::BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray) :
+BMPPixel::BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray) :
 	bmp(_bmp),
 	RowsPerArray(_RowsPerArray),
 	ColumnsPerArray(_ColumnsPerArray)
 {
-
-	std::vector<uint8_t>& TempData = bmp.BMPData;
-
-	uint64_t bytesperpixel = bmp.header.bits_per_pixel / 8;
-
-	uint64_t rowWidth = bmp.header.width_px * bytesperpixel;
-	uint64_t padding = 0;
-	if (rowWidth % 4 != 0)
-	{
-		padding = 4 - (rowWidth % 4);
-		rowWidth += padding;
-	}
-
-	{
-	int iter = 0;
-	CleanData.resize(bmp.header.height_px * (rowWidth - padding));
-	for (int i = 0; i < bmp.header.height_px; ++i)
-	{
-		for (int j = i * rowWidth; j < (i * rowWidth) + rowWidth - padding; ++j)
-		{
-			CleanData[iter] = TempData[j];
-			iter++;
-		}
-	}
-	}
+	std::vector<uint8_t>& CleanData = bmp.BMPData;
+	const uint64_t bytesperpixel = 3;
 
 	for (int i = CleanData.size() - 1; i >= 2; i -= bytesperpixel)
 	{
@@ -139,7 +133,7 @@ std::ostream& operator<<(std::ostream& os, const Pixel& p)
 
 #pragma region deprecated
 
-PixelArray::PixelArray(std::vector<Pixel>& _PixelMap) :
+PixelArray::PixelArray(const std::vector<Pixel>& _PixelMap) :
 	PixelMap(_PixelMap),
 	AverageRed(0),
 	AverageGreen(0),

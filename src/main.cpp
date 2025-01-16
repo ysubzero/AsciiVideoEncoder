@@ -19,7 +19,7 @@ bool video(std::string vidname)
 	return std::find(videoExtensions.begin(), videoExtensions.end(), extension) != videoExtensions.end();
 }
 
-void ConvertFile(std::vector<std::string> split, std::string directory)
+void ConvertFile(const std::vector<std::string>& split, std::string directory)
 {
 	for (auto& file : split)
 	{
@@ -28,7 +28,7 @@ void ConvertFile(std::vector<std::string> split, std::string directory)
 	}
 }
 
-void thread(std::vector<std::thread>& threads, std::vector<std::string>& outputfiles, std::string directory)
+void thread(std::vector<std::thread>& threads, const std::vector<std::string>& outputfiles, std::string directory)
 {
 	int64_t vect_size = outputfiles.size() / max_threads;
 
@@ -81,9 +81,13 @@ int VideoToAsciiVideo(std::string vidname, std::string directory)
 
 		std::vector<std::string> outputfiles = FSys::OutputFiles(directory);
 
+		auto start = std::chrono::high_resolution_clock::now();
 		thread(threads, outputfiles, directory);
+		auto end = std::chrono::high_resolution_clock::now();
 
-		std::print("Done.\n");
+		std::chrono::duration<double> duration = end - start;
+		std::print("Done. This task took {} seconds.\n", duration.count());
+
 		unconverted = false;
 	}
 
@@ -142,7 +146,7 @@ int VideoToConsole(std::string vidname, std::string directory)
 	threads.resize(max_threads);
 	bool unconverted = true;
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:480\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
+	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:360\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
 	std::print("{0}{1}", command ,"\n");
 
 	int ffmpeg_result = system(command.c_str());

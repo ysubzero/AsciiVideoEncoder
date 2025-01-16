@@ -5,12 +5,12 @@
 		std::print("\033[2J\033[H");
 	}
 
-	void ASC::consoleASCII(BMPPixel& bmppixel)
+	void ASC::consoleASCII(const BMPPixel& bmppixel)
 	{
 		clearScreen();
-		std::string result = "";
 		for (int row{ 0 }; row < bmppixel.pixelArrayRows; ++row)
 		{
+			std::string result = "";
 			for (int i{ (row + 1) * bmppixel.pixelArrayColumns - 1 }; i >= row * bmppixel.pixelArrayColumns; --i)
 			{
 				if (bmppixel.PixelArrayData[i].AverageIntensity < 25)
@@ -46,9 +46,8 @@
 					result += "@";
 				}
 			}
-			result += "\n";
+			std::print("{0}\n", result);
 		}
-		std::print("{0}", result);
 	}
 
 	void ASC::FileToTxt(std::string filename, std::string outputname, int detail_x, int detail_y)
@@ -112,7 +111,7 @@
 		outfile.close();
 	}
 
-	void ASC::BMPToAsciiImage(BMPPixel& bmppixel, std::string path)
+	void ASC::BMPToAsciiImage(const BMPPixel& bmppixel, std::string path)
 	{
 		const Cha::Dash dash;
 		const Cha::At at;
@@ -232,56 +231,56 @@
 				{
 					if (bmppixel.PixelArrayData[i].AverageIntensity < 25)
 					{
-						for (auto dat : space.bit_map[j])
+						for (auto& dat : space.bit_map[j])
 						{
 							data.push_back(dat);
 						}
 					}
 					else if (bmppixel.PixelArrayData[i].AverageIntensity < 50)
 					{
-						for (auto dat : dot.bit_map[j])
+						for (auto& dat : dot.bit_map[j])
 						{
 							data.push_back(dat);
 						}
 					}
 					else if (bmppixel.PixelArrayData[i].AverageIntensity < 75)
 					{
-						for (auto dat : colon.bit_map[j])
+						for (auto& dat : colon.bit_map[j])
 						{
 							data.push_back(dat);
 						}
 					}
 					else if (bmppixel.PixelArrayData[i].AverageIntensity < 100)
 					{
-						for (auto dat : dash.bit_map[j])
+						for (auto& dat : dash.bit_map[j])
 						{
 							data.push_back(dat);
 						}
 					}
 					else if (bmppixel.PixelArrayData[i].AverageIntensity < 150)
 					{
-						for (auto dat : equal.bit_map[j])
+						for (auto& dat : equal.bit_map[j])
 						{
 							data.push_back(dat);
 						}
 					}
 					else if (bmppixel.PixelArrayData[i].AverageIntensity < 200)
 					{
-						for (auto dat : plus.bit_map[j])
+						for (auto& dat : plus.bit_map[j])
 						{
 							data.push_back(dat);
 						}
 					}
 					else if (bmppixel.PixelArrayData[i].AverageIntensity < 225)
 					{
-						for (auto dat : hashtag.bit_map[j])
+						for (auto& dat : hashtag.bit_map[j])
 						{
 							data.push_back(dat);
 						}
 					}
 					else
 					{
-						for (auto dat : at.bit_map[j])
+						for (auto& dat : at.bit_map[j])
 						{
 							data.push_back(dat);
 						}
