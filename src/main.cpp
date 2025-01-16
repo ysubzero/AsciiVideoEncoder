@@ -161,7 +161,7 @@ int VideoToConsole(std::string vidname, std::string directory)
 		for (auto& s : outputfiles)
 		{
 			ASC::FileToConsole(directory + "\\" + s, 8, 16);
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000/25));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000/24));
 		}
 	}
 
@@ -216,8 +216,6 @@ int main(int argc, char* argv[])
 		std::getline(settings, homefolder);
 		settings.close();
 	}
-
-	fs::path homeDir(homefolder);
 
 	if (!fs::exists(homefolder)) 
 	{fs::create_directory(homefolder);}

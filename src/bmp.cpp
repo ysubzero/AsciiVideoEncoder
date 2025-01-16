@@ -30,9 +30,11 @@ BMP::BMP(const std::vector<uint8_t>& RawData)
 	header.important_colors = static_cast<uint32_t>(RawData[50]) | (static_cast<uint32_t>(RawData[51]) << 8) |
 		(static_cast<uint32_t>(RawData[52]) << 16) | (static_cast<uint32_t>(RawData[53]) << 24);
 
+	BMPData.resize(RawData.size() - 54);
+
 	for (int i{ 54 }; i < RawData.size(); i++)
 	{
-		BMPData.push_back(RawData[i]);
+		BMPData[i - 54] = RawData[i];
 	}
 }
 
@@ -57,7 +59,8 @@ BMPPixel::BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArra
 	RowsPerArray(_RowsPerArray),
 	ColumnsPerArray(_ColumnsPerArray)
 {
-	std::vector<uint8_t> TempData = bmp.BMPData;
+
+	std::vector<uint8_t>& TempData = bmp.BMPData;
 
 	uint64_t bytesperpixel = bmp.header.bits_per_pixel / 8;
 
@@ -68,21 +71,25 @@ BMPPixel::BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArra
 		padding = 4 - (rowWidth % 4);
 		rowWidth += padding;
 	}
+
+	{
+	int iter = 0;
+	CleanData.resize(bmp.header.height_px * (rowWidth - padding));
 	for (int i = 0; i < bmp.header.height_px; ++i)
 	{
-		std::vector<uint8_t> rowData;
-		for (int j = 0; j < rowWidth - padding; ++j)
+		for (int j = i * rowWidth; j < (i * rowWidth) + rowWidth - padding; ++j)
 		{
-			rowData.push_back(TempData[j]);
+			CleanData[iter] = TempData[j];
+			iter++;
 		}
-		TempData.erase(TempData.begin(), TempData.begin() + rowWidth);
-		CleanData.insert(CleanData.end(), rowData.begin(), rowData.end());
 	}
+	}
+
 	for (int i = CleanData.size() - 1; i >= 2; i -= bytesperpixel)
 	{
-		Pixel pix(CleanData[i], CleanData[i - 1], CleanData[i - 2]);
-		PixelData.push_back(pix);
+		PixelData.emplace_back(Pixel(CleanData[i], CleanData[i - 1], CleanData[i - 2]));
 	}
+
 	for (int i = 0; i + ColumnsPerArray <= bmp.header.height_px; i += ColumnsPerArray)
 	{
 		for (int j = i * bmp.header.width_px; j + RowsPerArray <= i * bmp.header.width_px + bmp.header.width_px; j += RowsPerArray)
@@ -96,11 +103,12 @@ BMPPixel::BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArra
 
 			for (int k = 0; k < RowsPerArray; ++k)
 			{
-				for (int l = 0; l < 16; l++)
+				for (int l = 0; l < ColumnsPerArray; l++)
 				{
-					if (j + (l * bmp.header.width_px) + k < PixelData.size())
+					int idx = j + (l * bmp.header.width_px) + k;
+					if (idx < PixelData.size())
 					{
-						Pixel& pix = PixelData[j + (l * bmp.header.width_px) + k];
+						Pixel& pix = PixelData[idx];
 						SumRed += pix.Red;
 						SumGreen += pix.Green;
 						SumBlue += pix.Blue;
@@ -115,9 +123,7 @@ BMPPixel::BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArra
 			uint8_t AverageBlue = SumBlue / PixArray.size();
 			uint8_t AverageIntensity = static_cast<uint32_t>(0.2126 * SumRed + 0.7152 * SumGreen + 0.0722 * SumBlue) / PixArray.size();
 
-			PixelArray PixArr(PixArray, AverageRed, AverageGreen, AverageBlue, AverageIntensity);
-
-			PixelArrayData.push_back(PixArr);
+			PixelArrayData.emplace_back(PixelArray(PixArray, AverageRed, AverageGreen, AverageBlue, AverageIntensity));
 			pixelArrayColumns++;
 		}
 		pixelArrayRows++;

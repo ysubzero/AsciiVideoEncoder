@@ -2,15 +2,7 @@
 
 	void clearScreen() 
 	{
-	#if defined(_WIN32) || defined(_WIN64)
-		// Windows
-		system("cls");
-	#elif defined(__linux__) || defined(__APPLE__)
-		// Linux or macOS
-		system("clear");
-	#else
-		std::cerr << "Unknown operating system.";
-	#endif
+		std::print("\033[2J\033[H");
 	}
 
 	void ASC::consoleASCII(BMPPixel& bmppixel)
@@ -238,10 +230,6 @@
 			{
 				for (int i{ (row + 1) * bmppixel.pixelArrayColumns - 1 }; i >= row * bmppixel.pixelArrayColumns; --i)
 				{
-					if (i < 0)
-					{
-						break;
-					}
 					if (bmppixel.PixelArrayData[i].AverageIntensity < 25)
 					{
 						for (auto dat : space.bit_map[j])

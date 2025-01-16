@@ -38,6 +38,7 @@ struct Pixel
 	Pixel(uint8_t _Red, uint8_t _Green, uint8_t _Blue);
 
 	friend std::ostream& operator<<(std::ostream& os, const Pixel& p);
+
 };
 
 std::ostream& operator<<(std::ostream& os, const Pixel& p);
