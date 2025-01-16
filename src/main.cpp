@@ -38,7 +38,7 @@ void thread(std::vector<std::thread>& threads, const std::vector<std::string>& o
 	{
 		std::vector<std::string> vector;
 
-		if (i <= max_threads - 1) 
+		if (i < max_threads - 1) 
 		{vector.insert(vector.end(), outputfiles.begin() + (i * vect_size), outputfiles.begin() + ((i + 1) * vect_size));}
 
 		else 
