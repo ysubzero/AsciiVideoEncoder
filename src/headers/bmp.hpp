@@ -45,30 +45,26 @@ std::ostream& operator<<(std::ostream& os, const Pixel& p);
 
 struct PixelArray
 {
-	std::vector<Pixel> PixelMap;
-
 	uint8_t AverageRed;
 	uint8_t AverageGreen;
 	uint8_t AverageBlue;
 	uint8_t AverageIntensity;
 
-	PixelArray(const std::vector<Pixel>& _PixelMap);
-
-	PixelArray(const std::vector<Pixel>& _PixelMap, const uint8_t _avgred, const uint8_t _avggreen, const uint8_t _avgblue, const uint8_t _avgint);
+	PixelArray(const uint8_t _avgred, const uint8_t _avggreen, const uint8_t _avgblue, const uint8_t _avgint);
 };
 
 struct BMPPixel
 {
-	BMP bmp;
-
-	std::vector<Pixel> PixelData;
-	std::vector<PixelArray> PixelArrayData;
-
 	const int RowsPerArray;
 	const int ColumnsPerArray;
 
 	int pixelArrayRows = 0;
 	int pixelArrayColumns = 0;
+
+	BMP bmp;
+
+	std::vector<Pixel> PixelData;
+	std::vector<PixelArray> PixelArrayData;
 
 	BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray);
 };

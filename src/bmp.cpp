@@ -61,15 +61,12 @@ Pixel::Pixel(const uint8_t _Red, const uint8_t _Green, const uint8_t _Blue):
 	Blue(_Blue)
 {}
 
-PixelArray::PixelArray(const std::vector<Pixel>& _PixelMap, const uint8_t _avgred, const uint8_t _avggreen, const uint8_t _avgblue, const uint8_t _avgint) :
-	PixelMap(_PixelMap),
+PixelArray::PixelArray(const uint8_t _avgred, const uint8_t _avggreen, const uint8_t _avgblue, const uint8_t _avgint) :
 	AverageRed(_avgred),
 	AverageGreen(_avggreen),
 	AverageBlue(_avgblue),
 	AverageIntensity(_avgint)
-{
-	if (PixelMap.empty()) return;
-}
+{}
 
 BMPPixel::BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray) :
 	bmp(_bmp),
@@ -117,7 +114,7 @@ BMPPixel::BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsP
 			uint8_t AverageBlue = SumBlue / PixArray.size();
 			uint8_t AverageIntensity = static_cast<uint32_t>(0.2126 * SumRed + 0.7152 * SumGreen + 0.0722 * SumBlue) / PixArray.size();
 
-			PixelArrayData.emplace_back(PixelArray(PixArray, AverageRed, AverageGreen, AverageBlue, AverageIntensity));
+			PixelArrayData.emplace_back(PixelArray(AverageRed, AverageGreen, AverageBlue, AverageIntensity));
 			pixelArrayColumns++;
 		}
 		pixelArrayRows++;
@@ -130,32 +127,3 @@ std::ostream& operator<<(std::ostream& os, const Pixel& p)
 	os << "R:" << static_cast<int>(p.Red) << " G:" << static_cast<int>(p.Green) << " B:" << static_cast<int>(p.Blue);
 	return os;
 }
-
-#pragma region deprecated
-
-PixelArray::PixelArray(const std::vector<Pixel>& _PixelMap) :
-	PixelMap(_PixelMap),
-	AverageRed(0),
-	AverageGreen(0),
-	AverageBlue(0),
-	AverageIntensity(0)
-{
-	if (PixelMap.empty()) return;
-	uint32_t SumRed = 0;
-	uint32_t SumGreen = 0;
-	uint32_t SumBlue = 0;
-
-	for (auto& pixel : PixelMap)
-	{
-		SumRed += pixel.Red;
-		SumGreen += pixel.Green;
-		SumBlue += pixel.Blue;
-	}
-
-	AverageRed = SumRed / PixelMap.size();
-	AverageGreen = SumGreen / PixelMap.size();
-	AverageBlue = SumBlue / PixelMap.size();
-	AverageIntensity = static_cast<uint32_t>(0.2126 * SumRed + 0.7152 * SumGreen + 0.0722 * SumBlue) / PixelMap.size();
-}
-
-#pragma endregion
