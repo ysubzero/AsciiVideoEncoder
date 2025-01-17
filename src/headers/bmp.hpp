@@ -61,7 +61,8 @@ struct BMPPixel
 	int pixelArrayRows = 0;
 	int pixelArrayColumns = 0;
 
-	BMP bmp;
+	int32_t  width_px;
+	int32_t  height_px;
 
 	std::vector<Pixel> PixelData;
 	std::vector<PixelArray> PixelArrayData;

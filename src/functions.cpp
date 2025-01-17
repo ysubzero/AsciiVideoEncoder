@@ -7,10 +7,9 @@
 
 	void ASC::consoleASCII(const BMPPixel& bmppixel)
 	{
-		clearScreen();
+		std::string result = "";
 		for (int row{ 0 }; row < bmppixel.pixelArrayRows; ++row)
 		{
-			std::string result = "";
 			for (int i{ (row + 1) * bmppixel.pixelArrayColumns - 1 }; i >= row * bmppixel.pixelArrayColumns; --i)
 			{
 				if (bmppixel.PixelArrayData[i].AverageIntensity < 25)
@@ -46,8 +45,11 @@
 					result += "@";
 				}
 			}
-			std::print("{0}\n", result);
+			result += "\n";
 		}
+		std::print("\033[H");
+		std::print("{0}", result);
+		std::cout << std::flush;
 	}
 
 	void ASC::FileToTxt(std::string filename, std::string outputname, int detail_x, int detail_y)

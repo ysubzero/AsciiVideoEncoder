@@ -69,21 +69,21 @@ PixelArray::PixelArray(const uint8_t _avgred, const uint8_t _avggreen, const uin
 {}
 
 BMPPixel::BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray) :
-	bmp(_bmp),
+	width_px(_bmp.header.width_px),
+	height_px(_bmp.header.height_px),
 	RowsPerArray(_RowsPerArray),
 	ColumnsPerArray(_ColumnsPerArray)
 {
-	std::vector<uint8_t>& CleanData = bmp.BMPData;
 	const uint64_t bytesperpixel = 3;
 
-	for (int i = CleanData.size() - 1; i >= 2; i -= bytesperpixel)
+	for (int i = _bmp.BMPData.size() - 1; i >= 2; i -= bytesperpixel)
 	{
-		PixelData.emplace_back(Pixel(CleanData[i], CleanData[i - 1], CleanData[i - 2]));
+		PixelData.emplace_back(Pixel(_bmp.BMPData[i], _bmp.BMPData[i - 1], _bmp.BMPData[i - 2]));
 	}
 
-	for (int i = 0; i + ColumnsPerArray <= bmp.header.height_px; i += ColumnsPerArray)
+	for (int i = 0; i + ColumnsPerArray <= height_px; i += ColumnsPerArray)
 	{
-		for (int j = i * bmp.header.width_px; j + RowsPerArray <= i * bmp.header.width_px + bmp.header.width_px; j += RowsPerArray)
+		for (int j = i * width_px; j + RowsPerArray <= i * width_px + width_px; j += RowsPerArray)
 		{
 			std::vector<Pixel> PixArray;
 			PixArray.push_back(PixelData[j]);
@@ -96,7 +96,7 @@ BMPPixel::BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsP
 			{
 				for (int l = 0; l < ColumnsPerArray; l++)
 				{
-					int idx = j + (l * bmp.header.width_px) + k;
+					int idx = j + (l * width_px) + k;
 					if (idx < PixelData.size())
 					{
 						Pixel& pix = PixelData[idx];
