@@ -1,7 +1,21 @@
 ﻿#include "headers/AsciiVideoEncoder.hpp"
 #include "headers/functions.hpp"
+#include <csignal>
 
 const uint32_t max_threads = std::thread::hardware_concurrency();
+
+std::string signalhandle;
+
+std::atomic<bool> terminate_program(false);
+
+void signal_handler(int signal) 
+{
+	terminate_program = true;
+	std::print("Terminating...\n");
+	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+	FSys::deleteTemporary(signalhandle);
+	std::exit(0);
+}
 
 bool video(const std::string vidname)
 {
@@ -21,12 +35,20 @@ bool video(const std::string vidname)
 
 void ConvertFile(const std::vector<std::string>& split, uint32_t start, uint32_t end, const std::string directory)
 {
-	for (uint32_t i = start; i < end; i++)
-	{
-		std::string file = split[i];
-		ASC::FileToAsciiImage(directory + "\\" + file, directory + "\\ASCII" + file, 4, 8);
-		std::print("Converted image.\n");
-	}
+
+		for (uint32_t i = start; i < end; i++)
+		{
+			if (!terminate_program)
+			{
+				std::string file = split[i];
+				ASC::FileToAsciiImage(directory + "\\" + file, directory + "\\ASCII" + file, 4, 8);
+				std::print("Converted {}\r", file);
+			}
+			else
+			{
+				break;
+			}
+		}
 }
 
 void thread(std::vector<std::thread>& threads, const std::vector<std::string>& outputfiles, const std::string directory)
@@ -93,7 +115,7 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory)
 		unconverted = false;
 	}
 
-	if (!unconverted)
+	if (!unconverted && !terminate_program)
 	{
 		std::string create_video = "ffmpeg -framerate 24 -i \"" + directory + "\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "\\asciioutput.mkv\"";
 
@@ -104,9 +126,12 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory)
 			std::print(std::cerr, "ffmpeg failed.\n");
 			FSys::deleteTemporary(directory); return 1;
 		}
+		FSys::deleteTemporary(directory);
 	}
-
-	FSys::deleteTemporary(directory);
+	else
+	{
+		return 1;
+	}
 	return 0;
 }
 
@@ -238,6 +263,10 @@ int main(int argc, char* argv[])
 	functionMap["-i"] = ConvertImageToAsciiImage;
 	functionMap["-c"] = VideoToConsole;
 	functionMap["-t"] = ImageToText;
+
+	signalhandle = homefolder;
+	std::signal(SIGINT, signal_handler);
+	std::signal(SIGTERM, signal_handler);
 
 	if (argc > 3)
 	{
