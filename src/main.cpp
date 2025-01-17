@@ -191,8 +191,15 @@ int VideoToConsole(const std::string vidname, const std::string directory)
 		clearScreen();
 		for (auto& s : outputfiles)
 		{
-			ASC::FileToConsole(directory + "\\" + s, 8, 16);
-			std::this_thread::sleep_for(std::chrono::milliseconds(27));
+			if (!terminate_program)
+			{
+				ASC::FileToConsole(directory + "\\" + s, 8, 16);
+				std::this_thread::sleep_for(std::chrono::milliseconds(27));
+			}
+			else
+			{
+				return 1;
+			}
 		}
 	}
 
