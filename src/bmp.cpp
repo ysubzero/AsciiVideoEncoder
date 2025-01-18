@@ -94,7 +94,7 @@ BMPPixel::BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsP
 
 			for (int k = 0; k < RowsPerArray; ++k)
 			{
-				for (int l = 0; l < ColumnsPerArray; l++)
+				for (int l = 0; l < ColumnsPerArray; ++l)
 				{
 					int idx = j + (l * width_px) + k;
 					if (idx < PixelData.size())

@@ -88,8 +88,8 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory)
 	threads.resize(max_threads);
 	bool unconverted = true;
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
-	std::print("{0}{1}", command, "\n");
+	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
+	std::print("Running ffmpeg...\n");
 
 	int ffmpeg_result = system(command.c_str());
 
@@ -117,7 +117,9 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory)
 
 	if (!unconverted && !terminate_program)
 	{
-		std::string create_video = "ffmpeg -framerate 24 -i \"" + directory + "\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "\\asciioutput.mkv\"";
+		std::print("Running ffmpeg...\n");
+
+		std::string create_video = "ffmpeg -framerate 24 -i \"" + directory + "\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -loglevel +error -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "\\asciioutput.mkv\"";
 
 		int ffmpeg_video = system(create_video.c_str());
 
@@ -135,32 +137,6 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory)
 	return 0;
 }
 
-int ConvertImageToAsciiImage(const std::string vidname, const std::string directory)
-{
-	if (video(vidname))
-	{
-		std::print(std::cerr, "Invalid Type\n");
-		FSys::deleteTemporary(directory); return 1;
-	}
-
-	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
-	std::print("{0}{1}", command, "\n");
-
-	int ffmpeg_result = system(command.c_str());
-
-	if (ffmpeg_result != 0) 
-	{
-		std::print(std::cerr, "ffmpeg failed.\n");
-		FSys::deleteTemporary(directory); return 1;
-	}
-
-	std::print("Converted.\n");
-
-	ASC::FileToAsciiImage(directory + "\\images\\input.bmp", directory + "\\images\\output.bmp", 4 , 8);
-	std::print("Done.\n");
-	return 0;
-}
-
 int VideoToConsole(const std::string vidname, const std::string directory)
 {
 	if (!video(vidname))
@@ -173,12 +149,12 @@ int VideoToConsole(const std::string vidname, const std::string directory)
 	threads.resize(max_threads);
 	bool unconverted = true;
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:640\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
-	std::print("{0}{1}", command ,"\n");
+	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = 24,scale=-1:640\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
+	std::print("Running ffmpeg...\n");
 
 	int ffmpeg_result = system(command.c_str());
 
-	if (ffmpeg_result != 0) 
+	if (ffmpeg_result != 0)
 	{
 		std::print(std::cerr, "ffmpeg failed.\n");
 		FSys::deleteTemporary(directory); return 1;
@@ -208,6 +184,32 @@ int VideoToConsole(const std::string vidname, const std::string directory)
 	return 0;
 }
 
+int ConvertImageToAsciiImage(const std::string vidname, const std::string directory)
+{
+	if (video(vidname))
+	{
+		std::print(std::cerr, "Invalid Type\n");
+		FSys::deleteTemporary(directory); return 1;
+	}
+
+	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
+	std::print("Running ffmpeg...\n");
+
+	int ffmpeg_result = system(command.c_str());
+
+	if (ffmpeg_result != 0) 
+	{
+		std::print(std::cerr, "ffmpeg failed.\n");
+		FSys::deleteTemporary(directory); return 1;
+	}
+
+	std::print("Converted.\n");
+
+	ASC::FileToAsciiImage(directory + "\\images\\input.bmp", directory + "\\images\\output.bmp", 4 , 8);
+	std::print("Done.\n");
+	return 0;
+}
+
 int ImageToText(const std::string vidname, const std::string directory)
 {
 	if (video(vidname))
@@ -216,8 +218,8 @@ int ImageToText(const std::string vidname, const std::string directory)
 		FSys::deleteTemporary(directory); return 1;
 	}
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
-	std::print("{0}{1}", command, "\n");
+	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
+	std::print("Running ffmpeg...\n");
 
 	int ffmpeg_result = system(command.c_str());
 
@@ -305,12 +307,21 @@ int main(int argc, char* argv[])
 
 	if (result == 1)
 	{
-		std::print(std::cerr, "Failed.");
+		if (terminate_program)
+		{
+			std::print(std::cerr, "Clearing cache...");
+		}
+		else
+		{
+			std::print(std::cerr, "Failure: Error occured.");
+		}
 		FSys::deleteTemporary(homefolder); return 1;
 	}
-	std::cout << std::flush;
+
+	std::print("Success!\n");
+
 	if (userinput != "-c")
-	{std::print("{0} {1}", "\nSaved to", homefolder);}
+	{std::print("{0} {1}", "Saved to", homefolder);}
 
 	else
 	{std::print("Playback done.");}

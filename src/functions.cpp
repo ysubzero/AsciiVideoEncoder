@@ -21,37 +21,34 @@ const Cha::Space space;
 		{
 			for (int i{ (row + 1) * bmppixel.pixelArrayColumns - 1 }; i >= row * bmppixel.pixelArrayColumns; --i)
 			{
-				if (bmppixel.PixelArrayData[i].AverageIntensity < 25)
+				uint8_t intensity = bmppixel.PixelArrayData[i].AverageIntensity / 32;
+
+				switch (intensity)
 				{
+				case 0:
 					result += " ";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 50)
-				{
+					break;
+				case 1:
 					result += ".";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 75)
-				{
+					break;
+				case 2:
 					result += ":";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 100)
-				{
+					break;
+				case 3:
 					result += "-";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 150)
-				{
+					break;
+				case 4:
 					result += "=";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 200)
-				{
+					break;
+				case 5:
 					result += "+";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 225)
-				{
+					break;
+				case 6:
 					result += "#";
-				}
-				else
-				{
+					break;
+				default:
 					result += "@";
+					break;
 				}
 			}
 			result += "\n";
@@ -61,7 +58,7 @@ const Cha::Space space;
 		std::cout << std::flush;
 	}
 
-	void ASC::FileToTxt(const std::string filename, const std::string outputname, const int detail_x, const int detail_y)
+	void ASC::FileToTxt(const std::string& filename, const std::string& outputname, const int detail_x, const int detail_y)
 	{
 		std::ifstream input(filename, std::ios::binary);
 
@@ -77,41 +74,34 @@ const Cha::Space space;
 		{
 			for (int i = (row + 1) * bmppixel.pixelArrayColumns - 1; i >= row * bmppixel.pixelArrayColumns; --i)
 			{
-				if (i < 0)
+				uint8_t intensity = bmppixel.PixelArrayData[i].AverageIntensity / 32;
+
+				switch (intensity)
 				{
-					break;
-				}
-				if (bmppixel.PixelArrayData[i].AverageIntensity < 25)
-				{
+				case 0:
 					result += " ";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 50)
-				{
+					break;
+				case 1:
 					result += ".";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 75)
-				{
+					break;
+				case 2:
 					result += ":";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 100)
-				{
+					break;
+				case 3:
 					result += "-";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 150)
-				{
+					break;
+				case 4:
 					result += "=";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 200)
-				{
+					break;
+				case 5:
 					result += "+";
-				}
-				else if (bmppixel.PixelArrayData[i].AverageIntensity < 225)
-				{
+					break;
+				case 6:
 					result += "#";
-				}
-				else
-				{
+					break;
+				default:
 					result += "@";
+					break;
 				}
 			}
 			result += "\n";
@@ -122,7 +112,31 @@ const Cha::Space space;
 		outfile.close();
 	}
 
-	void ASC::BMPToAsciiImage(const BMPPixel& bmppixel, const std::string path)
+	static const std::array<uint8_t, 24>& getmap(const int j, const uint8_t intensity)
+	{
+		switch (intensity)
+		{
+		case 0:
+			return space.bit_map[j];
+		case 1:
+			return dot.bit_map[j];
+		case 2:
+			return colon.bit_map[j];
+		case 3:
+			return dash.bit_map[j];
+		case 4 :
+			return equal.bit_map[j];
+		case 5:
+			return plus.bit_map[j];
+		case 6:
+			return hashtag.bit_map[j];
+		default:
+			return at.bit_map[j];
+		}
+		
+	}
+
+	void ASC::BMPToAsciiImage(const BMPPixel& bmppixel, const std::string& path)
 	{
 #pragma region Header Data
 		uint16_t  type = 0x4D42;
@@ -151,150 +165,101 @@ const Cha::Space space;
 		uint32_t  num_colors = 0;
 		uint32_t  important_colors = 0;
 
-		std::vector<uint8_t> header_data;
+		std::vector<uint8_t> bmp(size);
 
-		header_data.push_back((uint8_t)(type & 0xFF));
-		header_data.push_back((uint8_t)((type >> 8) & 0xFF));
+		bmp[0] = (uint8_t)(type & 0xFF);
+		bmp[1] = (uint8_t)((type >> 8) & 0xFF);
 
-		header_data.push_back((uint8_t)(size & 0xFF));
-		header_data.push_back((uint8_t)((size >> 8) & 0xFF));
-		header_data.push_back((uint8_t)((size >> 16) & 0xFF));
-		header_data.push_back((uint8_t)((size >> 24) & 0xFF));
+		bmp[2] = (uint8_t)(size & 0xFF);
+		bmp[3] = (uint8_t)((size >> 8) & 0xFF);
+		bmp[4] = (uint8_t)((size >> 16) & 0xFF);
+		bmp[5] = (uint8_t)((size >> 24) & 0xFF);
 
-		header_data.push_back((uint8_t)(reserved1 & 0xFF));
-		header_data.push_back((uint8_t)((reserved1 >> 8) & 0xFF));
+		bmp[6] = (uint8_t)(reserved1 & 0xFF);
+		bmp[7] = (uint8_t)((reserved1 >> 8) & 0xFF);
 
-		header_data.push_back((uint8_t)(reserved2 & 0xFF));
-		header_data.push_back((uint8_t)((reserved2 >> 8) & 0xFF));
+		bmp[8] = (uint8_t)(reserved2 & 0xFF);
+		bmp[9] = (uint8_t)((reserved2 >> 8) & 0xFF);
 
-		header_data.push_back((uint8_t)(offset & 0xFF));
-		header_data.push_back((uint8_t)((offset >> 8) & 0xFF));
-		header_data.push_back((uint8_t)((offset >> 16) & 0xFF));
-		header_data.push_back((uint8_t)((offset >> 24) & 0xFF));
+		bmp[10] = (uint8_t)(offset & 0xFF);
+		bmp[11] = (uint8_t)((offset >> 8) & 0xFF);
+		bmp[12] = (uint8_t)((offset >> 16) & 0xFF);
+		bmp[13] = (uint8_t)((offset >> 24) & 0xFF);
 
-		header_data.push_back((uint8_t)(dib_header_size & 0xFF));
-		header_data.push_back((uint8_t)((dib_header_size >> 8) & 0xFF));
-		header_data.push_back((uint8_t)((dib_header_size >> 16) & 0xFF));
-		header_data.push_back((uint8_t)((dib_header_size >> 24) & 0xFF));
+		bmp[14] = (uint8_t)(dib_header_size & 0xFF);
+		bmp[15] = (uint8_t)((dib_header_size >> 8) & 0xFF);
+		bmp[16] = (uint8_t)((dib_header_size >> 16) & 0xFF);
+		bmp[17] = (uint8_t)((dib_header_size >> 24) & 0xFF);
 
-		header_data.push_back((uint8_t)((width_px) & 0xFF));
-		header_data.push_back((uint8_t)(((width_px) >> 8) & 0xFF));
-		header_data.push_back((uint8_t)(((width_px) >> 16) & 0xFF));
-		header_data.push_back((uint8_t)(((width_px) >> 24) & 0xFF));
+		bmp[18] = (uint8_t)(width_px & 0xFF);
+		bmp[19] = (uint8_t)((width_px >> 8) & 0xFF);
+		bmp[20] = (uint8_t)((width_px >> 16) & 0xFF);
+		bmp[21] = (uint8_t)((width_px >> 24) & 0xFF);
 
-		header_data.push_back((uint8_t)((height_px) & 0xFF));
-		header_data.push_back((uint8_t)(((height_px) >> 8) & 0xFF));
-		header_data.push_back((uint8_t)(((height_px) >> 16) & 0xFF));
-		header_data.push_back((uint8_t)(((height_px) >> 24) & 0xFF));
+		bmp[22] = (uint8_t)(height_px & 0xFF);
+		bmp[23] = (uint8_t)((height_px >> 8) & 0xFF);
+		bmp[24] = (uint8_t)((height_px >> 16) & 0xFF);
+		bmp[25] = (uint8_t)((height_px >> 24) & 0xFF);
 
-		header_data.push_back((uint8_t)(num_planes & 0xFF));
-		header_data.push_back((uint8_t)((num_planes >> 8) & 0xFF));
+		bmp[26] = (uint8_t)(num_planes & 0xFF);
+		bmp[27] = (uint8_t)((num_planes >> 8) & 0xFF);
 
-		header_data.push_back((uint8_t)(bits_per_pixel & 0xFF));
-		header_data.push_back((uint8_t)((bits_per_pixel >> 8) & 0xFF));
+		bmp[28] = (uint8_t)(bits_per_pixel & 0xFF);
+		bmp[29] = (uint8_t)((bits_per_pixel >> 8) & 0xFF);
 
-		header_data.push_back((uint8_t)(compression & 0xFF));
-		header_data.push_back((uint8_t)((compression >> 8) & 0xFF));
-		header_data.push_back((uint8_t)((compression >> 16) & 0xFF));
-		header_data.push_back((uint8_t)((compression >> 24) & 0xFF));
+		bmp[30] = (uint8_t)(compression & 0xFF);
+		bmp[31] = (uint8_t)((compression >> 8) & 0xFF);
+		bmp[32] = (uint8_t)((compression >> 16) & 0xFF);
+		bmp[33] = (uint8_t)((compression >> 24) & 0xFF);
 
-		header_data.push_back((uint8_t)(image_size_bytes & 0xFF));
-		header_data.push_back((uint8_t)((image_size_bytes >> 8) & 0xFF));
-		header_data.push_back((uint8_t)((image_size_bytes >> 16) & 0xFF));
-		header_data.push_back((uint8_t)((image_size_bytes >> 24) & 0xFF));
+		bmp[34] = (uint8_t)(image_size_bytes & 0xFF);
+		bmp[35] = (uint8_t)((image_size_bytes >> 8) & 0xFF);
+		bmp[36] = (uint8_t)((image_size_bytes >> 16) & 0xFF);
+		bmp[37] = (uint8_t)((image_size_bytes >> 24) & 0xFF);
 
-		header_data.push_back((uint8_t)((x_resolution_ppm) & 0xFF));
-		header_data.push_back((uint8_t)(((x_resolution_ppm) >> 8) & 0xFF));
-		header_data.push_back((uint8_t)(((x_resolution_ppm) >> 16) & 0xFF));
-		header_data.push_back((uint8_t)(((x_resolution_ppm) >> 24) & 0xFF));
+		bmp[38] = (uint8_t)(x_resolution_ppm & 0xFF);
+		bmp[39] = (uint8_t)((x_resolution_ppm >> 8) & 0xFF);
+		bmp[40] = (uint8_t)((x_resolution_ppm >> 16) & 0xFF);
+		bmp[41] = (uint8_t)((x_resolution_ppm >> 24) & 0xFF);
 
-		header_data.push_back((uint8_t)((y_resolution_ppm) & 0xFF));
-		header_data.push_back((uint8_t)(((y_resolution_ppm) >> 8) & 0xFF));
-		header_data.push_back((uint8_t)(((y_resolution_ppm) >> 16) & 0xFF));
-		header_data.push_back((uint8_t)(((y_resolution_ppm) >> 24) & 0xFF));
+		bmp[42] = (uint8_t)(y_resolution_ppm & 0xFF);
+		bmp[43] = (uint8_t)((y_resolution_ppm >> 8) & 0xFF);
+		bmp[44] = (uint8_t)((y_resolution_ppm >> 16) & 0xFF);
+		bmp[45] = (uint8_t)((y_resolution_ppm >> 24) & 0xFF);
 
-		header_data.push_back((uint8_t)(num_colors & 0xFF));
-		header_data.push_back((uint8_t)((num_colors >> 8) & 0xFF));
-		header_data.push_back((uint8_t)((num_colors >> 16) & 0xFF));
-		header_data.push_back((uint8_t)((num_colors >> 24) & 0xFF));
+		bmp[46] = (uint8_t)(num_colors & 0xFF);
+		bmp[47] = (uint8_t)((num_colors >> 8) & 0xFF);
+		bmp[48] = (uint8_t)((num_colors >> 16) & 0xFF);
+		bmp[49] = (uint8_t)((num_colors >> 24) & 0xFF);
 
-		header_data.push_back((uint8_t)(important_colors & 0xFF));
-		header_data.push_back((uint8_t)((important_colors >> 8) & 0xFF));
-		header_data.push_back((uint8_t)((important_colors >> 16) & 0xFF));
-		header_data.push_back((uint8_t)((important_colors >> 24) & 0xFF));
+		bmp[50] = (uint8_t)(important_colors & 0xFF);
+		bmp[51] = (uint8_t)((important_colors >> 8) & 0xFF);
+		bmp[52] = (uint8_t)((important_colors >> 16) & 0xFF);
+		bmp[53] = (uint8_t)((important_colors >> 24) & 0xFF);
 #pragma endregion
 
-		std::vector<uint8_t> data;
-
-		for (int row{ bmppixel.pixelArrayRows - 1 }; row >= 0; --row)
 		{
-			for (int j{ 0 }; j < 16; j++)
+			int idx = 54;
+			for (int row{ bmppixel.pixelArrayRows - 1 }; row >= 0; --row)
 			{
-				for (int i{ (row + 1) * bmppixel.pixelArrayColumns - 1 }; i >= row * bmppixel.pixelArrayColumns; --i)
+				for (int j{ 0 }; j < 16; j++)
 				{
-					if (bmppixel.PixelArrayData[i].AverageIntensity < 25)
+					for (int i{ bmppixel.pixelArrayColumns - 1 }; i >= 0; --i)
 					{
-						for (auto& dat : space.bit_map[j])
-						{
-							data.push_back(dat);
-						}
-					}
-					else if (bmppixel.PixelArrayData[i].AverageIntensity < 50)
-					{
-						for (auto& dat : dot.bit_map[j])
-						{
-							data.push_back(dat);
-						}
-					}
-					else if (bmppixel.PixelArrayData[i].AverageIntensity < 75)
-					{
-						for (auto& dat : colon.bit_map[j])
-						{
-							data.push_back(dat);
-						}
-					}
-					else if (bmppixel.PixelArrayData[i].AverageIntensity < 100)
-					{
-						for (auto& dat : dash.bit_map[j])
-						{
-							data.push_back(dat);
-						}
-					}
-					else if (bmppixel.PixelArrayData[i].AverageIntensity < 150)
-					{
-						for (auto& dat : equal.bit_map[j])
-						{
-							data.push_back(dat);
-						}
-					}
-					else if (bmppixel.PixelArrayData[i].AverageIntensity < 200)
-					{
-						for (auto& dat : plus.bit_map[j])
-						{
-							data.push_back(dat);
-						}
-					}
-					else if (bmppixel.PixelArrayData[i].AverageIntensity < 225)
-					{
-						for (auto& dat : hashtag.bit_map[j])
-						{
-							data.push_back(dat);
-						}
-					}
-					else
-					{
-						for (auto& dat : at.bit_map[j])
-						{
-							data.push_back(dat);
-						}
-					}
-				}
+						int id = row * bmppixel.pixelArrayColumns + i;
+						uint8_t intensity = bmppixel.PixelArrayData[id].AverageIntensity / 32;
 
+						const std::array<uint8_t, 24>& bitmap = getmap(j, intensity);
+
+						for (int k = 0; k < 24; k++)
+						{
+							bmp[idx++] = bitmap[k];
+						}
+					}
+
+				}
 			}
 		}
-
-		std::vector<uint8_t> bmp = header_data;
-		bmp.insert(bmp.end(), data.begin(), data.end());
 
 		std::ofstream outputFile(path, std::ios::binary);
 
@@ -309,7 +274,7 @@ const Cha::Space space;
 		}
 	}
 
-	void ASC::FileToAsciiImage(const std::string filename, const std::string outfilename, const int detail_x, const int detail_y)
+	void ASC::FileToAsciiImage(const std::string& filename, const std::string& outfilename, const int detail_x, const int detail_y)
 	{
 		std::ifstream input(filename, std::ios::binary);
 
@@ -322,7 +287,7 @@ const Cha::Space space;
 		ASC::BMPToAsciiImage(bmppixel, outfilename);
 	}
 
-	void ASC::FileToConsole(const std::string filename, const int detail_x, const int detail_y)
+	void ASC::FileToConsole(const std::string& filename, const int detail_x, const int detail_y)
 	{
 		std::ifstream input(filename, std::ios::binary);
 
