@@ -76,7 +76,7 @@ void thread(std::vector<std::thread>& threads, const std::vector<std::string>& o
 	for (auto& t : threads) {if (t.joinable()) { t.join(); }}
 }
 
-int VideoToAsciiVideo(const std::string vidname, const std::string directory)
+int VideoToAsciiVideo(const std::string vidname, const std::string directory, const int framerate)
 {
 	if (!video(vidname))
 	{
@@ -88,7 +88,7 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory)
 	threads.resize(max_threads);
 	bool unconverted = true;
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
+	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = " + std::to_string(framerate) + ",scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
 	std::print("Running ffmpeg...\n");
 
 	int ffmpeg_result = system(command.c_str());
@@ -119,7 +119,7 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory)
 	{
 		std::print("Running ffmpeg...\n");
 
-		std::string create_video = "ffmpeg -framerate 24 -i \"" + directory + "\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -loglevel +error -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "\\asciioutput.mkv\"";
+		std::string create_video = "ffmpeg -framerate "+ std::to_string(framerate) + " -i \"" + directory + "\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -loglevel +error -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "\\asciioutput.mkv\"";
 
 		int ffmpeg_video = system(create_video.c_str());
 
@@ -137,7 +137,7 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory)
 	return 0;
 }
 
-int VideoToConsole(const std::string vidname, const std::string directory)
+int VideoToConsole(const std::string vidname, const std::string directory, const int framerate)
 {
 	if (!video(vidname))
 	{
@@ -149,7 +149,7 @@ int VideoToConsole(const std::string vidname, const std::string directory)
 	threads.resize(max_threads);
 	bool unconverted = true;
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = 24,scale=-1:640\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
+	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = " + std::to_string(framerate) + ",scale=-1:640\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
 	std::print("Running ffmpeg...\n");
 
 	int ffmpeg_result = system(command.c_str());
@@ -165,12 +165,13 @@ int VideoToConsole(const std::string vidname, const std::string directory)
 		std::print("Command executed successfully!\n");
 		std::vector<std::string> outputfiles = FSys::OutputFiles(directory);
 		clearScreen();
+		const int sleep_t = (1000 / framerate) - 15;
 		for (auto& s : outputfiles)
 		{
 			if (!terminate_program)
 			{
 				ASC::FileToConsole(directory + "\\" + s, 8, 16);
-				std::this_thread::sleep_for(std::chrono::milliseconds(27));
+				std::this_thread::sleep_for(std::chrono::milliseconds(sleep_t));
 			}
 			else
 			{
@@ -184,7 +185,7 @@ int VideoToConsole(const std::string vidname, const std::string directory)
 	return 0;
 }
 
-int ConvertImageToAsciiImage(const std::string vidname, const std::string directory)
+int ConvertImageToAsciiImage(const std::string vidname, const std::string directory, const int detail)
 {
 	if (video(vidname))
 	{
@@ -205,12 +206,12 @@ int ConvertImageToAsciiImage(const std::string vidname, const std::string direct
 
 	std::print("Converted.\n");
 
-	ASC::FileToAsciiImage(directory + "\\images\\input.bmp", directory + "\\images\\output.bmp", 4 , 8);
+	ASC::FileToAsciiImage(directory + "\\images\\input.bmp", directory + "\\images\\output.bmp", detail , detail * 2);
 	std::print("Done.\n");
 	return 0;
 }
 
-int ImageToText(const std::string vidname, const std::string directory)
+int ImageToText(const std::string vidname, const std::string directory, const int detail)
 {
 	if (video(vidname))
 	{
@@ -231,7 +232,7 @@ int ImageToText(const std::string vidname, const std::string directory)
 
 	std::print("Converted.\n");
 
-	ASC::FileToTxt(directory + "\\images\\input.bmp", directory + "\\images\\output.txt", 4, 8);
+	ASC::FileToTxt(directory + "\\images\\input.bmp", directory + "\\images\\output.txt", detail, detail * 2);
 	std::print("Done.\n");
 	return 0;
 }
@@ -267,7 +268,7 @@ int main(int argc, char* argv[])
 	std::cout << std::flush;
 	FSys::deleteTemporary(homefolder);
 
-	std::unordered_map<std::string, std::function<int(const std::string, const std::string)>> functionMap;
+	std::unordered_map<std::string, std::function<int(const std::string, const std::string, const int)>> functionMap;
 	functionMap["-v"] = VideoToAsciiVideo;
 	functionMap["-i"] = ConvertImageToAsciiImage;
 	functionMap["-c"] = VideoToConsole;
@@ -277,15 +278,10 @@ int main(int argc, char* argv[])
 	std::signal(SIGINT, signal_handler);
 	std::signal(SIGTERM, signal_handler);
 
-	if (argc > 3)
+	if (argc != 4)
 	{
-		std::print(std::cerr, "Too many arguments.");
-		FSys::deleteTemporary(homefolder); return 1;
-	}
-
-	if (argc < 3)
-	{
-		std::print(std::cerr, "Not enough arguments.");
+		std::string output = argc > 4 ? "Too many arguments." : "Not enough arguments.";
+		std::print(std::cerr, "{}", output);
 		FSys::deleteTemporary(homefolder); return 1;
 	}
 
@@ -293,11 +289,31 @@ int main(int argc, char* argv[])
 
 	std::string vidname = argv[2];
 
+	int frate;
+
+	try
+	{
+		frate = std::stoi(argv[3]);
+	}
+	catch (const std::invalid_argument& e)
+	{
+		std::print(std::cerr, "Invalid framerate/detail."); return 1;
+	}
+	catch (const std::out_of_range& e)
+	{
+		std::print(std::cerr, "Framerate/detail out of range."); return 1;
+	}
+
+	if (frate > 60 || frate <= 0)
+	{
+		std::print(std::cerr, "Framerate/detail must be inbetween 1 and 60."); return 1;
+	}
+
 	int result;
 
 	if (functionMap.find(userinput) != functionMap.end())
 	{
-		result = functionMap[userinput](vidname, homefolder);
+		result = functionMap[userinput](vidname, homefolder, frate);
 	}
 	else
 	{
