@@ -1,5 +1,14 @@
 #include "headers/functions.hpp"
 
+const Cha::Dash dash;
+const Cha::At at;
+const Cha::Colon colon;
+const Cha::Dot dot;
+const Cha::Equal equal;
+const Cha::Hashtag hashtag;
+const Cha::Plus plus;
+const Cha::Space space;
+
 	void clearScreen() 
 	{
 		std::print("\033[2J\033[H");
@@ -52,7 +61,7 @@
 		std::cout << std::flush;
 	}
 
-	void ASC::FileToTxt(std::string filename, std::string outputname, int detail_x, int detail_y)
+	void ASC::FileToTxt(const std::string filename, const std::string outputname, const int detail_x, const int detail_y)
 	{
 		std::ifstream input(filename, std::ios::binary);
 
@@ -113,16 +122,8 @@
 		outfile.close();
 	}
 
-	void ASC::BMPToAsciiImage(const BMPPixel& bmppixel, std::string path)
+	void ASC::BMPToAsciiImage(const BMPPixel& bmppixel, const std::string path)
 	{
-		const Cha::Dash dash;
-		const Cha::At at;
-		const Cha::Colon colon;
-		const Cha::Dot dot;
-		const Cha::Equal equal;
-		const Cha::Hashtag hashtag;
-		const Cha::Plus plus;
-		const Cha::Space space;
 #pragma region Header Data
 		uint16_t  type = 0x4D42;
 		uint16_t  reserved1 = 0;
@@ -308,7 +309,7 @@
 		}
 	}
 
-	void ASC::FileToAsciiImage(std::string filename, std::string outfilename, int detail_x, int detail_y)
+	void ASC::FileToAsciiImage(const std::string filename, const std::string outfilename, const int detail_x, const int detail_y)
 	{
 		std::ifstream input(filename, std::ios::binary);
 
@@ -321,7 +322,7 @@
 		ASC::BMPToAsciiImage(bmppixel, outfilename);
 	}
 
-	void ASC::FileToConsole(std::string filename, int detail_x, int detail_y)
+	void ASC::FileToConsole(const std::string filename, const int detail_x, const int detail_y)
 	{
 		std::ifstream input(filename, std::ios::binary);
 

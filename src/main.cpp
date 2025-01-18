@@ -33,7 +33,7 @@ bool video(const std::string vidname)
 	return std::find(videoExtensions.begin(), videoExtensions.end(), extension) != videoExtensions.end();
 }
 
-void ConvertFile(const std::vector<std::string>& split, uint32_t start, uint32_t end, const std::string directory)
+void ConvertFile(const std::vector<std::string>& split, const uint32_t start, const uint32_t end, const std::string directory)
 {
 
 		for (uint32_t i = start; i < end; i++)
