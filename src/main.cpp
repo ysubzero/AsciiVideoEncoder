@@ -81,7 +81,7 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory, co
 	if (!video(vidname))
 	{
 		std::print(std::cerr, "Invalid Type\n");
-		FSys::deleteTemporary(directory); return 1;
+		return 1;
 	}
 
 	std::vector<std::thread> threads;
@@ -96,7 +96,7 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory, co
 	if (ffmpeg_result != 0) 
 	{
 		std::print(std::cerr, "ffmpeg failed.\n");
-		FSys::deleteTemporary(directory); return 1;
+		return 1;
 	}
 
 	else
@@ -110,9 +110,11 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory, co
 		auto end = std::chrono::high_resolution_clock::now();
 
 		std::chrono::duration<double> duration = end - start;
-		std::print("Done. This task took {} seconds.\n", duration.count());
-
-		unconverted = false;
+		if (!terminate_program)
+		{
+			std::print("Done. This task took {} seconds.\n", duration.count());
+			unconverted = false;
+		}
 	}
 
 	if (!unconverted && !terminate_program)
@@ -126,7 +128,7 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory, co
 		if (ffmpeg_video != 0) 
 		{
 			std::print(std::cerr, "ffmpeg failed.\n");
-			FSys::deleteTemporary(directory); return 1;
+			return 1;
 		}
 		FSys::deleteTemporary(directory);
 	}
@@ -142,7 +144,7 @@ int VideoToConsole(const std::string vidname, const std::string directory, const
 	if (!video(vidname))
 	{
 		std::print(std::cerr, "Invalid Type\n");
-		FSys::deleteTemporary(directory); return 1;
+		return 1;
 	}
 
 	std::vector<std::thread> threads;
@@ -157,7 +159,7 @@ int VideoToConsole(const std::string vidname, const std::string directory, const
 	if (ffmpeg_result != 0)
 	{
 		std::print(std::cerr, "ffmpeg failed.\n");
-		FSys::deleteTemporary(directory); return 1;
+		return 1;
 	}
 
 	else
@@ -190,7 +192,7 @@ int ConvertImageToAsciiImage(const std::string vidname, const std::string direct
 	if (video(vidname))
 	{
 		std::print(std::cerr, "Invalid Type\n");
-		FSys::deleteTemporary(directory); return 1;
+		return 1;
 	}
 
 	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
@@ -216,7 +218,7 @@ int ImageToText(const std::string vidname, const std::string directory, const in
 	if (video(vidname))
 	{
 		std::cerr << "Invalid Type\n";
-		FSys::deleteTemporary(directory); return 1;
+		return 1;
 	}
 
 	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
@@ -258,11 +260,27 @@ int main(int argc, char* argv[])
 		settings.close();
 	}
 
-	if (!fs::exists(homefolder)) 
-	{fs::create_directory(homefolder);}
+	if (!fs::exists(homefolder))
+	{
+		try
+		{
+			std::print("Folder does not exist. Creating folder...\n");
+			fs::create_directory(homefolder);
 
-	if (!fs::exists(homefolder + "\\images"))
-	{fs::create_directory(homefolder + "\\images");}
+			fs::create_directory(homefolder + "\\images");
+
+			if (!fs::exists(homefolder) || !fs::exists(homefolder + "\\images"))
+			{
+				std::print(std::cerr, "Unable to create folder!");
+				return 1;
+			}
+		}
+		catch (const std::exception& e)
+		{
+			std::print(std::cerr, "Error: {}", e.what());
+			return 1;
+		}
+	}
 
 	std::print("Clearing cache...\n");
 	std::cout << std::flush;
@@ -282,11 +300,10 @@ int main(int argc, char* argv[])
 	{
 		std::string output = argc > 4 ? "Too many arguments." : "Not enough arguments.";
 		std::print(std::cerr, "{}", output);
-		FSys::deleteTemporary(homefolder); return 1;
+		return 1;
 	}
 
 	std::string userinput = argv[1];
-
 	std::string vidname = argv[2];
 
 	int frate;
@@ -323,14 +340,8 @@ int main(int argc, char* argv[])
 
 	if (result == 1)
 	{
-		if (terminate_program)
-		{
-			std::print(std::cerr, "Clearing cache...");
-		}
-		else
-		{
-			std::print(std::cerr, "Failure: Error occured.");
-		}
+		std::string outcerr = terminate_program ? "Clearing cache..." : "Failure: Error occured.";
+		std::print(std::cerr, "{}", outcerr);
 		FSys::deleteTemporary(homefolder); return 1;
 	}
 
