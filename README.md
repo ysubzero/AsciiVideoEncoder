@@ -10,7 +10,7 @@ Check the releases tab.
 
 Once you have placed it into a folder, run it in the command terminal with the following arguments:
 
-argv[0] =
+argv[1] =
 
 -v for video conversion
 
@@ -20,9 +20,13 @@ argv[0] =
 
 -t to convert images into text files
 
-argv[1] =
+argv[2] =
 
 Input your filename in quotations. "C:\Folder\video.mp4".
+
+argv[3] =
+
+Desired level of detail for pictures / framerate for videos. Must be inbetween 1 and 60.
 
 # Settings
 
