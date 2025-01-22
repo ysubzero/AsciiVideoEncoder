@@ -32,43 +32,40 @@ struct BMP {
 
 struct Pixel
 {
-	uint8_t Red;
-	uint8_t Green;
-	uint8_t Blue;
-	Pixel(uint8_t _Red, uint8_t _Green, uint8_t _Blue);
+	const uint8_t Red;
+	const uint8_t Green;
+	const uint8_t Blue;
+	Pixel(const uint8_t _Red, const uint8_t _Green, const uint8_t _Blue);
 
 	friend std::ostream& operator<<(std::ostream& os, const Pixel& p);
+
 };
 
 std::ostream& operator<<(std::ostream& os, const Pixel& p);
 
 struct PixelArray
 {
-	std::vector<Pixel> PixelMap;
+	const uint8_t AverageRed;
+	const uint8_t AverageGreen;
+	const uint8_t AverageBlue;
+	const uint8_t AverageIntensity;
 
-	uint8_t AverageRed;
-	uint8_t AverageGreen;
-	uint8_t AverageBlue;
-	uint8_t AverageIntensity;
-
-	PixelArray(std::vector<Pixel>& _PixelMap);
-
-	PixelArray(std::vector<Pixel>& _PixelMap, uint8_t _avgred, uint8_t _avggreen, uint8_t _avgblue, uint8_t _avgint);
+	PixelArray(const uint8_t _avgred, const uint8_t _avggreen, const uint8_t _avgblue, const uint8_t _avgint);
 };
 
 struct BMPPixel
 {
-	BMP bmp;
-
-	std::vector<uint8_t> CleanData;
-	std::vector<Pixel> PixelData;
-	std::vector<PixelArray> PixelArrayData;
-
 	const int RowsPerArray;
 	const int ColumnsPerArray;
 
 	int pixelArrayRows = 0;
 	int pixelArrayColumns = 0;
 
-	BMPPixel(BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray);
+	const int32_t  width_px;
+	const int32_t  height_px;
+
+	std::vector<Pixel> PixelData;
+	std::vector<PixelArray> PixelArrayData;
+
+	BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray);
 };
