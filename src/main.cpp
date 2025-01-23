@@ -1,6 +1,5 @@
 ﻿#include "headers/AsciiVideoEncoder.hpp"
 #include "headers/functions.hpp"
-#include <csignal>
 
 const uint32_t max_threads = std::thread::hardware_concurrency();
 
@@ -17,7 +16,7 @@ void signal_handler(int signal)
 	std::exit(0);
 }
 
-bool video(const std::string vidname)
+bool video(const std::string& vidname)
 {
 	std::vector<std::string> videoExtensions = { ".mp4", ".avi", ".mkv", ".mov", ".flv", ".webm", ".mpg", ".mpeg", ".wmv" };
 
@@ -33,15 +32,17 @@ bool video(const std::string vidname)
 	return std::find(videoExtensions.begin(), videoExtensions.end(), extension) != videoExtensions.end();
 }
 
-void ConvertFile(const std::vector<std::string>& split, const uint32_t start, const uint32_t end, const std::string directory)
+void ConvertFile(const std::vector<std::string>& split, const size_t start, const size_t end, const std::string& directory, const bool color)
 {
+	auto func = color ? static_cast<void(*)(const std::string&, const std::string&, const int, const int)>(&ASC::ColorImage)
+		: static_cast<void(*)(const std::string&, const std::string&, const int, const int)>(&ASC::AsciiImage);
 
 		for (uint32_t i = start; i < end; i++)
 		{
 			if (!terminate_program)
 			{
 				std::string file = split[i];
-				ASC::FileToAsciiImage(directory + "\\" + file, directory + "\\ASCII" + file, 4, 8);
+				func(directory + "\\" + file, directory + "\\ASCII" + file, 4, 8);
 				std::print("Converted {}\r", file);
 			}
 			else
@@ -51,14 +52,14 @@ void ConvertFile(const std::vector<std::string>& split, const uint32_t start, co
 		}
 }
 
-void thread(std::vector<std::thread>& threads, const std::vector<std::string>& outputfiles, const std::string directory)
+void thread(std::vector<std::thread>& threads, const std::vector<std::string>& outputfiles, const std::string& directory, const bool color)
 {
-	int64_t vect_size = outputfiles.size() / max_threads;
+	size_t vect_size = outputfiles.size() / max_threads;
 
-	for (int i = 0; i < max_threads; ++i)
+	for (size_t i = 0; i < max_threads; ++i)
 	{
-		uint32_t end;
-		uint32_t start = i * vect_size;
+		size_t end;
+		size_t start = i * vect_size;
 
 		if (i < max_threads - 1) 
 		{
@@ -69,14 +70,14 @@ void thread(std::vector<std::thread>& threads, const std::vector<std::string>& o
 			end = outputfiles.size();
 		}
 
-		threads.emplace_back(ConvertFile, outputfiles, start, end, directory);
+		threads.emplace_back(ConvertFile, outputfiles, start, end, directory, color);
 	}
 
 
 	for (auto& t : threads) {if (t.joinable()) { t.join(); }}
 }
 
-int VideoToAsciiVideo(const std::string vidname, const std::string directory, const int framerate)
+int AsciiVideo(const std::string& vidname, const std::string& directory, const int framerate, const bool color)
 {
 	if (!video(vidname))
 	{
@@ -85,7 +86,6 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory, co
 	}
 
 	std::vector<std::thread> threads;
-	threads.resize(max_threads);
 	bool unconverted = true;
 
 	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = " + std::to_string(framerate) + ",scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
@@ -106,7 +106,7 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory, co
 		std::vector<std::string> outputfiles = FSys::OutputFiles(directory);
 
 		auto start = std::chrono::high_resolution_clock::now();
-		thread(threads, outputfiles, directory);
+		thread(threads, outputfiles, directory, color);
 		auto end = std::chrono::high_resolution_clock::now();
 
 		std::chrono::duration<double> duration = end - start;
@@ -139,8 +139,9 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory, co
 	return 0;
 }
 
-int VideoToConsole(const std::string vidname, const std::string directory, const int framerate)
+int Console(const std::string& vidname, const std::string& directory, const int framerate, const bool color)
 {
+	//color remains unused for now.
 	if (!video(vidname))
 	{
 		std::print(std::cerr, "Invalid Type\n");
@@ -172,7 +173,7 @@ int VideoToConsole(const std::string vidname, const std::string directory, const
 		{
 			if (!terminate_program)
 			{
-				ASC::FileToConsole(directory + "\\" + s, 8, 16);
+				ASC::Console(directory + "\\" + s, 8, 16);
 				std::this_thread::sleep_for(std::chrono::milliseconds(sleep_t));
 			}
 			else
@@ -187,7 +188,7 @@ int VideoToConsole(const std::string vidname, const std::string directory, const
 	return 0;
 }
 
-int ConvertImageToAsciiImage(const std::string vidname, const std::string directory, const int detail)
+int AsciiImage(const std::string& vidname, const std::string& directory, const int detail, const bool color)
 {
 	if (video(vidname))
 	{
@@ -208,13 +209,16 @@ int ConvertImageToAsciiImage(const std::string vidname, const std::string direct
 
 	std::print("Converted.\n");
 
-	ASC::FileToAsciiImage(directory + "\\images\\input.bmp", directory + "\\images\\output.bmp", detail , detail * 2);
+	if (color) {ASC::ColorImage(directory + "\\images\\input.bmp", directory + "\\images\\output.bmp", detail, detail * 2);}
+	else {ASC::AsciiImage(directory + "\\images\\input.bmp", directory + "\\images\\output.bmp", detail, detail * 2);}
+
 	std::print("Done.\n");
 	return 0;
 }
 
-int ImageToText(const std::string vidname, const std::string directory, const int detail)
+int Text(const std::string& vidname, const std::string& directory, const int detail, const bool color)
 {
+	//color remains unused for now.
 	if (video(vidname))
 	{
 		std::cerr << "Invalid Type\n";
@@ -234,7 +238,7 @@ int ImageToText(const std::string vidname, const std::string directory, const in
 
 	std::print("Converted.\n");
 
-	ASC::FileToTxt(directory + "\\images\\input.bmp", directory + "\\images\\output.txt", detail, detail * 2);
+	ASC::Text(directory + "\\images\\input.bmp", directory + "\\images\\output.txt", detail, detail * 2);
 	std::print("Done.\n");
 	return 0;
 }
@@ -286,15 +290,34 @@ int main(int argc, char* argv[])
 	std::cout << std::flush;
 	FSys::deleteTemporary(homefolder);
 
-	std::unordered_map<std::string, std::function<int(const std::string, const std::string, const int)>> functionMap;
-	functionMap["-v"] = VideoToAsciiVideo;
-	functionMap["-i"] = ConvertImageToAsciiImage;
-	functionMap["-c"] = VideoToConsole;
-	functionMap["-t"] = ImageToText;
+	std::unordered_map<std::string, std::function<int(const std::string&, const std::string&, const int, const bool)>> functionMap;
+	functionMap["-v"] = AsciiVideo;
+	functionMap["-i"] = AsciiImage;
+	functionMap["-c"] = Console;
+	functionMap["-t"] = Text;
+	functionMap["-k"] = AsciiVideo;
+	functionMap["-j"] = AsciiImage;
+
+	std::unordered_map<std::string, bool> colorMap;
+	colorMap["-v"] = false;
+	colorMap["-i"] = false;
+	colorMap["-c"] = false;
+	colorMap["-t"] = false;
+	colorMap["-k"] = true;
+	colorMap["-j"] = true;
 
 	signalhandle = homefolder;
 	std::signal(SIGINT, signal_handler);
 	std::signal(SIGTERM, signal_handler);
+
+	if (argc >= 2)
+	{
+		if (std::string(argv[1]) == "-h")
+		{
+			std::print("Commands\n\t-v: Outputs ASCII video.\n\t-i: Outputs ASCII image.\n\t-c: Outputs to Console.\n\t-t: Outputs to text.\n\t-k: Outputs Color Video.\n\t-j: Outputs Color Image.");
+			return 0;
+		}
+	}
 
 	if (argc != 4)
 	{
@@ -328,9 +351,9 @@ int main(int argc, char* argv[])
 
 	int result;
 
-	if (functionMap.find(userinput) != functionMap.end())
+	if (functionMap.find(userinput) != functionMap.end() && colorMap.find(userinput) != colorMap.end())
 	{
-		result = functionMap[userinput](vidname, homefolder, frate);
+		result = functionMap[userinput](vidname, homefolder, frate, colorMap[userinput]);
 	}
 	else
 	{

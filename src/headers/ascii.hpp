@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include "headers/bmp.hpp"
 #include <array>
 
 namespace Cha

@@ -20,6 +20,10 @@ argv[1] =
 
 -t to convert images into text files
 
+-k for color video conversion
+
+-j for color image conversion.
+
 argv[2] =
 
 Input your filename in quotations. "C:\Folder\video.mp4".
