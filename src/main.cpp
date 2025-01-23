@@ -16,7 +16,7 @@ void signal_handler(int signal)
 	std::exit(0);
 }
 
-bool video(const std::string& vidname)
+static bool video(const std::string& vidname)
 {
 	std::vector<std::string> videoExtensions = { ".mp4", ".avi", ".mkv", ".mov", ".flv", ".webm", ".mpg", ".mpeg", ".wmv" };
 
@@ -32,7 +32,7 @@ bool video(const std::string& vidname)
 	return std::find(videoExtensions.begin(), videoExtensions.end(), extension) != videoExtensions.end();
 }
 
-void ConvertFile(const std::vector<std::string>& split, const size_t start, const size_t end, const std::string& directory, const bool color)
+static void ConvertFile(const std::vector<std::string>& split, const size_t start, const size_t end, const std::string& directory, const bool color)
 {
 	auto func = color ? static_cast<void(*)(const std::string&, const std::string&, const int, const int)>(&ASC::ColorImage)
 		: static_cast<void(*)(const std::string&, const std::string&, const int, const int)>(&ASC::AsciiImage);
@@ -45,14 +45,11 @@ void ConvertFile(const std::vector<std::string>& split, const size_t start, cons
 				func(directory + "\\" + file, directory + "\\ASCII" + file, 4, 8);
 				std::print("Converted {}\r", file);
 			}
-			else
-			{
-				break;
-			}
+			else {break;}
 		}
 }
 
-void thread(std::vector<std::thread>& threads, const std::vector<std::string>& outputfiles, const std::string& directory, const bool color)
+static void thread(std::vector<std::thread>& threads, const std::vector<std::string>& outputfiles, const std::string& directory, const bool color)
 {
 	size_t vect_size = outputfiles.size() / max_threads;
 
@@ -65,10 +62,7 @@ void thread(std::vector<std::thread>& threads, const std::vector<std::string>& o
 		{
 			end = (i + 1) * vect_size;
 		}
-		else 
-		{
-			end = outputfiles.size();
-		}
+		else {end = outputfiles.size();}
 
 		threads.emplace_back(ConvertFile, outputfiles, start, end, directory, color);
 	}
@@ -77,7 +71,7 @@ void thread(std::vector<std::thread>& threads, const std::vector<std::string>& o
 	for (auto& t : threads) {if (t.joinable()) { t.join(); }}
 }
 
-int AsciiVideo(const std::string& vidname, const std::string& directory, const int framerate, const bool color)
+static int AsciiVideo(const std::string& vidname, const std::string& directory, const int framerate, const bool color)
 {
 	if (!video(vidname))
 	{
@@ -133,13 +127,12 @@ int AsciiVideo(const std::string& vidname, const std::string& directory, const i
 		FSys::deleteTemporary(directory);
 	}
 	else
-	{
-		return 1;
-	}
+	{return 1;}
+
 	return 0;
 }
 
-int Console(const std::string& vidname, const std::string& directory, const int framerate, const bool color)
+static int Console(const std::string& vidname, const std::string& directory, const int framerate, const bool color)
 {
 	//color remains unused for now.
 	if (!video(vidname))
@@ -188,7 +181,7 @@ int Console(const std::string& vidname, const std::string& directory, const int 
 	return 0;
 }
 
-int AsciiImage(const std::string& vidname, const std::string& directory, const int detail, const bool color)
+static int AsciiImage(const std::string& vidname, const std::string& directory, const int detail, const bool color)
 {
 	if (video(vidname))
 	{
@@ -245,6 +238,15 @@ int Text(const std::string& vidname, const std::string& directory, const int det
 
 int main(int argc, char* argv[])
 {
+	if (argc >= 2 && std::string(argv[1]) == "-h")
+	{
+		std::print("Commands:\n\t-v: Outputs ASCII video.\n\t-i: Outputs ASCII image.\n\t-c: Outputs to Console.\n\t-t: Outputs to text.\n\t-k: Outputs Color Video.\n\t-j: Outputs Color Image.\n\n\
+Correct format for command line input is: AsciiVideoEncoder [Command] [Filename] [Framerate/detail].\n\
+Video commands use the fourth argument as framerate while image commands use the fourth argument as the detail (how the pixels are mapped to an ASCII character).\n\
+For a detail of 4 it would be: 4 x 8 = 32 pixels mapped to each ASCII character.");
+		return 0;
+	}
+
 	std::string homefolder;
 
 	std::ifstream settings("settings.txt");
@@ -310,18 +312,10 @@ int main(int argc, char* argv[])
 	std::signal(SIGINT, signal_handler);
 	std::signal(SIGTERM, signal_handler);
 
-	if (argc >= 2)
-	{
-		if (std::string(argv[1]) == "-h")
-		{
-			std::print("Commands\n\t-v: Outputs ASCII video.\n\t-i: Outputs ASCII image.\n\t-c: Outputs to Console.\n\t-t: Outputs to text.\n\t-k: Outputs Color Video.\n\t-j: Outputs Color Image.");
-			return 0;
-		}
-	}
-
 	if (argc != 4)
 	{
 		std::string output = argc > 4 ? "Too many arguments." : "Not enough arguments.";
+		output += "\nCorrect format for command line input is : AsciiVideoEncoder [Command] [Filename] [Framerate/detail].";
 		std::print(std::cerr, "{}", output);
 		return 1;
 	}
@@ -357,7 +351,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		std::print(std::cerr, "Not a function.");
+		std::print(std::cerr, "Not a function.\n Use -h to list all available functions.");
 		FSys::deleteTemporary(homefolder); return 1;
 	}
 

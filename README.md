@@ -24,6 +24,8 @@ argv[1] =
 
 -j for color image conversion.
 
+-h for help.
+
 argv[2] =
 
 Input your filename in quotations. "C:\Folder\video.mp4".
