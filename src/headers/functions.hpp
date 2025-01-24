@@ -5,14 +5,14 @@ void clearScreen();
 
 namespace ASC
 {
-	void consoleASCII(const BMPPixel& bmppixel);
+	void consoleASCII(BMPPixel& bmppixel);
 
-	void FileToTxt(const std::string& inputfile, const std::string& outputname, const int detail_x, const int detail_y);
+	void FileToTxt(std::string inputfile, std::string outputname, int detail_x, int detail_y);
 
-	void BMPToAsciiImage(const BMPPixel& bmppixel, const std::string& path);
+	void BMPToAsciiImage(BMPPixel& bmppixel, std::string path);
 
-	void FileToAsciiImage(const std::string& filename, const std::string& outfilename, const int detail_x, const int detail_y);
+	void FileToAsciiImage(std::string filename, std::string outfilename, int detail_x, int detail_y);
 
-	void FileToConsole(const std::string& filename, const int detail_x, const int detail_y);
+	void FileToConsole(std::string filename, int detail_x, int detail_y);
 }
 

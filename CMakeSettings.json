@@ -1,0 +1,15 @@
+﻿{
+    "configurations": [
+        {
+            "name": "x64-Clang-Release",
+            "generator": "Ninja",
+            "configurationType": "Release",
+            "buildRoot": "${projectDir}/out/build/${name}",
+            "installRoot": "${projectDir}/out/install/${name}",
+            "cmakeCommandArgs": "-DCMAKE_CXX_FLAGS=\"-O3\"",
+            "buildCommandArgs": "",
+            "ctestCommandArgs": "",
+            "inheritEnvironments": [ "clang_x64"]
+        }
+    ]
+}
