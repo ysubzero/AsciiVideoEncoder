@@ -1,6 +1,11 @@
-﻿#include "headers/AsciiVideoEncoder.hpp"
+#include "headers/AsciiVideoEncoder.hpp"
 #include "headers/functions.hpp"
 #include <csignal>
+<<<<<<< HEAD
+=======
+#include <pwd.h>
+#include <unistd.h> 
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 
 const uint32_t max_threads = std::thread::hardware_concurrency();
 
@@ -35,6 +40,7 @@ bool video(const std::string vidname)
 
 void ConvertFile(const std::vector<std::string>& split, const uint32_t start, const uint32_t end, const std::string directory)
 {
+<<<<<<< HEAD
 	for (uint32_t i = start; i < end; ++i)
 	{
 		if (terminate_program)
@@ -44,6 +50,21 @@ void ConvertFile(const std::vector<std::string>& split, const uint32_t start, co
 		ASC::FileToAsciiImage(directory + "/" + split[i], directory + "/ASCII" + split[i], 4, 8);
 		std::print("{0} {1}{2}", "Converted", split[i], "\n");
 	}
+=======
+		for (uint32_t i = start; i < end; i++)
+		{
+			if (!terminate_program)
+			{
+				std::string file = split[i];
+				ASC::FileToAsciiImage(directory + "/" + file, directory + "/ASCII" + file, 4, 8);
+				std::print("Converted {}\r", file);
+			}
+			else
+			{
+				break;
+			}
+		}
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 }
 
 void thread(std::vector<std::thread>& threads, const std::vector<std::string>& outputfiles, const std::string directory)
@@ -83,8 +104,13 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory, co
 	threads.resize(max_threads);
 	bool unconverted = true;
 
+<<<<<<< HEAD
 	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "/output_%04d.bmp\"";
 	std::print("{0}{1}", command, "\n");
+=======
+	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = " + std::to_string(framerate) + ",scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "/output_%04d.bmp\"";
+	std::print("Running ffmpeg...\n");
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 
 	int ffmpeg_result = system(command.c_str());
 
@@ -114,7 +140,13 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory, co
 
 	if (!unconverted && !terminate_program)
 	{
+<<<<<<< HEAD
 		std::string create_video = "ffmpeg -framerate 24 -i \"" + directory + "/ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "/asciioutput.mkv\"";
+=======
+		std::print("Running ffmpeg...\n");
+
+		std::string create_video = "ffmpeg -framerate "+ std::to_string(framerate) + " -i \"" + directory + "/ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -loglevel +error -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "\\asciioutput.mkv\"";
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 
 		int ffmpeg_video = system(create_video.c_str());
 
@@ -123,12 +155,46 @@ int VideoToAsciiVideo(const std::string vidname, const std::string directory, co
 			std::print(std::cerr, "ffmpeg failed.\n");
 			return 1;
 		}
+<<<<<<< HEAD
 	}
 
+=======
+		FSys::deleteTemporary(directory);
+	}
+	else
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 	FSys::deleteTemporary(directory);
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int ConvertImageToAsciiImage(std::string vidname, std::string directory)
+{
+	if (video(vidname))
+	{
+		std::print(std::cerr, "Invalid Type\n");
+		return 1;
+	}
+
+	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 -y \"" + directory + "/images/input.bmp\"";
+	std::print("{0}{1}", command, "\n");
+
+	int ffmpeg_result = system(command.c_str());
+
+	if (ffmpeg_result != 0) 
+	{
+		return 1;
+	}
+
+	std::print("Converted.\n");
+
+	ASC::FileToAsciiImage(directory + "/images/input.bmp", directory + "/images/output.bmp", 4 , 8);
+	std::print("Done.\n");
+	return 0;
+}
+
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 int VideoToConsole(const std::string vidname, const std::string directory, const int framerate)
 {
 	if (!video(vidname))
@@ -140,9 +206,15 @@ int VideoToConsole(const std::string vidname, const std::string directory, const
 	std::vector<std::thread> threads;
 	threads.resize(max_threads);
 	bool unconverted = true;
+<<<<<<< HEAD
 
 	std::string command = "ffmpeg -i \"" + vidname + "\" -vf \"fps = 24,scale=-1:480\" -pix_fmt bgr24 -y \"" + directory + "/output_%04d.bmp\"";
 	std::print("{0}{1}", command ,"\n");
+=======
+  
+	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = " + std::to_string(framerate) + ",scale=-1:640\" -pix_fmt bgr24 -y \"" + directory + "/output_%04d.bmp\"";
+	std::print("Running ffmpeg...\n");
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 
 	int ffmpeg_result = system(command.c_str());
 
@@ -160,8 +232,20 @@ int VideoToConsole(const std::string vidname, const std::string directory, const
 		const int sleep_t = (1000 / framerate) - 15;
 		for (auto& s : outputfiles)
 		{
+<<<<<<< HEAD
 			ASC::FileToConsole(directory + "/" + s, 8, 16);
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000/25));
+=======
+			if (!terminate_program)
+			{
+				ASC::FileToConsole(directory + "/" + s, 8, 16);
+				std::this_thread::sleep_for(std::chrono::milliseconds(sleep_t));
+			}
+			else
+			{
+				return 1;
+			}
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 		}
 	}
 
@@ -204,8 +288,13 @@ int ImageToText(const std::string vidname, const std::string directory, const in
 		return 1;
 	}
 
+<<<<<<< HEAD
 	std::string command = "ffmpeg -i \"" + vidname + "\" -pix_fmt bgr24 -y " + directory + "/images/input.bmp\"";
 	std::print("{0}{1}", command, "\n");
+=======
+	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
+	std::print("Running ffmpeg...\n");
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 
 	int ffmpeg_result = system(command.c_str());
 
@@ -217,7 +306,11 @@ int ImageToText(const std::string vidname, const std::string directory, const in
 
 	std::print("Converted.\n");
 
+<<<<<<< HEAD
 	ASC::FileToTxt(directory + "/images/input.bmp", directory + "/images/output.txt", 4, 8);
+=======
+	ASC::FileToTxt(directory + "/images/input.bmp", directory + "/images/output.txt", detail, detail * 2);
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 	std::print("Done.\n");
 	return 0;
 }
@@ -245,6 +338,7 @@ int main(int argc, char* argv[])
 		settings.close();
 	}
 
+<<<<<<< HEAD
 	fs::path homeDir(homefolder);
 
 	if (homefolder.empty() || !fs::is_directory(homeDir))
@@ -258,6 +352,29 @@ int main(int argc, char* argv[])
 
 	if (!fs::exists(homefolder + "/images"))
 	{fs::create_directory(homefolder + "/images");}
+=======
+	if (!fs::exists(homefolder))
+	{
+		try
+		{
+			std::print("Folder does not exist. Creating folder...\n");
+			fs::create_directory(homefolder);
+
+			fs::create_directory(homefolder + "/images");
+
+			if (!fs::exists(homefolder) || !fs::exists(homefolder + "/images"))
+			{
+				std::print(std::cerr, "Unable to create folder!");
+				return 1;
+			}
+		}
+		catch (const std::exception& e)
+		{
+			std::print(std::cerr, "Error: {}", e.what());
+			return 1;
+		}
+	}
+>>>>>>> 2173151bc2d8404d435474a17e8a9f7ad1e3de78
 
 	std::print("Clearing cache...\n");
 	std::cout << std::flush;

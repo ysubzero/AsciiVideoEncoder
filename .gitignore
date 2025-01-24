@@ -253,6 +253,14 @@ orleans.codegen.cs
 
 # RIA/Silverlight projects
 Generated_Code/
+CMakeFiles/
+
+CMakeCache.txt
+
+Makefile
+
+settings.txt
+.gz
 
 # Backup & report files from converting an old project file
 # to a newer Visual Studio version. Backup files are not needed,
@@ -364,3 +372,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+AsciiVideoEncoder.tar.gz
+AsciiVideoEncoder
+cmake_install.cmake
