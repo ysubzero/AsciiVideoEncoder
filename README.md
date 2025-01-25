@@ -24,6 +24,8 @@ argv[1] =
 
 -j for color image conversion.
 
+-m for colored terminal output.
+
 -h for help.
 
 argv[2] =
@@ -33,6 +35,8 @@ Input your filename in quotations. "C:\Folder\video.mp4".
 argv[3] =
 
 Desired level of detail for pictures / framerate for videos. Must be inbetween 1 and 60.
+
+The program will automatically save to C:/AsciiVideoEncoder if not given a settings.txt.
 
 # Settings
 
