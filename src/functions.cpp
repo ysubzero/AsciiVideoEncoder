@@ -1,34 +1,25 @@
 #include "headers/functions.hpp"
 
-constexpr Cha::Dash dash;
-constexpr Cha::At at;
-constexpr Cha::Colon colon;
-constexpr Cha::Dot dot;
-constexpr Cha::Equal equal;
-constexpr Cha::Hashtag hashtag;
-constexpr Cha::Plus plus;
-constexpr Cha::Space space;
-
-static const std::array<uint8_t, 24>& getmap(const int j, const uint32_t intensity)
+static std::array<uint8_t, 24> getmap(const int j, const uint32_t intensity)
 {
 	switch (intensity)
 	{
 	case 0:
-		return space.bit_map[j];
+		return Cha::space_bit_map[j];
 	case 1:
-		return dot.bit_map[j];
+		return Cha::dot_bit_map[j];
 	case 2:
-		return colon.bit_map[j];
+		return Cha::colon_bit_map[j];
 	case 3:
-		return dash.bit_map[j];
+		return Cha::dash_bit_map[j];
 	case 4:
-		return equal.bit_map[j];
+		return Cha::equal_bit_map[j];
 	case 5:
-		return plus.bit_map[j];
+		return Cha::plus_bit_map[j];
 	case 6:
-		return hashtag.bit_map[j];
+		return Cha::hashtag_bit_map[j];
 	default:
-		return at.bit_map[j];
+		return Cha::at_bit_map[j];
 	}
 
 }
@@ -200,7 +191,7 @@ void ASC::BMPAscii(const BMPPixel& bmppixel, const std::string& path)
 					const int id = row * bmppixel.pixelArrayColumns + i;
 					const uint32_t intensity = bmppixel.PixelArrayData[id].AverageIntensity / 32;
 
-					const std::array<uint8_t, 24>& bitmap = getmap(j, intensity);
+					const std::array<uint8_t, 24> bitmap = getmap(j, intensity);
 
 					for (int k = 0; k < 24; k++)
 					{
@@ -337,11 +328,12 @@ void ASC::BMPColor(const BMPPixel& bmppixel, const std::string& path)
 
 					const float avg = static_cast<float>(bmppixel.PixelArrayData[id].AverageRed + bmppixel.PixelArrayData[id].AverageGreen + bmppixel.PixelArrayData[id].AverageBlue) / 3.0f;
 
+					//deviation from average
 					const float red_dev = avg != 0 ? static_cast<float>(bmppixel.PixelArrayData[id].AverageRed) / avg : 0;
 					const float green_dev = avg != 0 ? static_cast<float>(bmppixel.PixelArrayData[id].AverageGreen) / avg : 0;
 					const float blue_dev = avg!= 0 ? static_cast<float>(bmppixel.PixelArrayData[id].AverageBlue) / avg : 0;
 
-					const std::array<uint8_t, 24>& bitmap = getmap(j, intensity);
+					const std::array<uint8_t, 24> bitmap = getmap(j, intensity);
 
 					for (int k = 0; k < 24; k += 3)
 					{

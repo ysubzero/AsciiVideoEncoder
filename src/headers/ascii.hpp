@@ -5,9 +5,7 @@
 
 namespace Cha
 {
-	struct Dot
-	{
-		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
+		static constexpr std::array<const std::array<uint8_t, 24>, 16> dot_bit_map =
 		{
 			{
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -28,11 +26,8 @@ namespace Cha
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 			}
 		};
-	};
 
-	struct At
-	{
-		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
+		static constexpr std::array<const std::array<uint8_t, 24>, 16> at_bit_map =
 		{
 			{
 				{ 1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0 },
@@ -53,11 +48,8 @@ namespace Cha
 				{ 1,1,1,0,0,0,0,0,0,44,44,44,71,71,71,0,0,0,0,0,0,2,2,2 }
 			}
 		};
-	};
 
-	struct Dash
-	{
-		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
+		static constexpr std::array<const std::array<uint8_t, 24>, 16> dash_bit_map =
 		{
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -78,12 +70,8 @@ namespace Cha
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
 			}
 		};
-	};
 
-
-	struct Colon
-	{
-		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
+		static constexpr std::array<const std::array<uint8_t, 24>, 16> colon_bit_map =
 		{
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -104,11 +92,8 @@ namespace Cha
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
 			}
 		};
-	};
 
-	struct Plus
-	{
-		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
+		static constexpr std::array<const std::array<uint8_t, 24>, 16> plus_bit_map =
 		{
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -129,11 +114,8 @@ namespace Cha
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
 			}
 		};
-	};
 
-	struct Equal
-	{
-		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
+		static constexpr std::array<const std::array<uint8_t, 24>, 16> equal_bit_map =
 		{
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -155,11 +137,7 @@ namespace Cha
 			}
 		};
 
-	};
-
-	struct Hashtag
-	{
-		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
+		static constexpr std::array<const std::array<uint8_t, 24>, 16> hashtag_bit_map =
 		{
 			{
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -180,11 +158,8 @@ namespace Cha
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 			}
 		};
-	};
 
-	struct Space
-	{
-		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
+		static constexpr std::array<const std::array<uint8_t, 24>, 16> space_bit_map =
 		{
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -205,5 +180,4 @@ namespace Cha
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
 			}
 		};
-	};
 }

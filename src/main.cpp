@@ -187,7 +187,7 @@ static int AsciiImage(const std::string& vidname, const std::string& directory, 
 		return 1;
 	}
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
+	const std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
 	std::print("Running ffmpeg...\n");
 
 	int ffmpeg_result = system(command.c_str());
@@ -215,7 +215,7 @@ int Text(const std::string& vidname, const std::string& directory, const int det
 		return 1;
 	}
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
+	const std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -pix_fmt bgr24 -y " + directory + "\\images\\input.bmp\"";
 	std::print("Running ffmpeg...\n");
 
 	int ffmpeg_result = system(command.c_str());
@@ -319,8 +319,8 @@ For a detail of 4 it would be: 4 x 8 = 32 pixels mapped to each ASCII character.
 		return 1;
 	}
 
-	std::string userinput = argv[1];
-	std::string vidname = argv[2];
+	const std::string userinput = argv[1];
+	const std::string vidname = argv[2];
 
 	int frate;
 
