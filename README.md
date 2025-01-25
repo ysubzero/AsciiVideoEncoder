@@ -36,7 +36,7 @@ argv[3] =
 
 Desired level of detail for pictures / framerate for videos. Must be inbetween 1 and 60.
 
-The program will automatically save to C:/AsciiVideoEncoder if not given a settings.txt.
+The program will automatically save to C:\AsciiVideoEncoder if not given a settings.txt.
 
 # Settings
 
