@@ -37,13 +37,14 @@ void ASC::Text(const std::string& filename, const std::string& outputname, const
 
 	const BMPPixel bmppixel(rawData, detail_x, detail_y);
 
-	std::string result = "";
+	std::string result;
+	result.reserve(bmppixel.pixelArrayRows * (bmppixel.pixelArrayColumns + 1));
 
 	for (int row = 0; row < bmppixel.pixelArrayRows; ++row)
 	{
 		for (int i = (row + 1) * bmppixel.pixelArrayColumns - 1; i >= row * bmppixel.pixelArrayColumns; --i)
 		{
-			uint8_t intensity = bmppixel.PixelArrayData[i].AverageIntensity / 32;
+			const uint8_t intensity = bmppixel.PixelArrayData[i].AverageIntensity / 32;
 
 			switch (intensity)
 			{
@@ -390,7 +391,8 @@ void ASC::Console(const std::string& filename, const int detail_x, const int det
 
 	const BMPPixel bmppixel(rawData, detail_x, detail_y);
 
-	std::string result = "";
+	std::string result;
+	result.reserve(bmppixel.pixelArrayRows * (bmppixel.pixelArrayColumns + 1));
 
 	for (int row{ 0 }; row < bmppixel.pixelArrayRows; ++row)
 	{
@@ -440,7 +442,8 @@ void ASC::ColorConsole(const std::string& filename, const int detail_x, const in
 
 	const BMPPixel bmppixel(rawData, detail_x, detail_y);
 
-	std::string result = "";
+	std::string result;
+	result.reserve(bmppixel.pixelArrayRows * (bmppixel.pixelArrayColumns * 19 + 1));
 
 	for (int row{ 0 }; row < bmppixel.pixelArrayRows; ++row)
 	{
