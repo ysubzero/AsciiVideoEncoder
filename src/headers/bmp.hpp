@@ -20,14 +20,14 @@ typedef struct {
 	int32_t   y_resolution_ppm;
 	uint32_t  num_colors;
 	uint32_t  important_colors;
-} BMPHeader;
+} BMPHeader;//deprecated
 
 struct BMP {
 	BMPHeader header;
 	std::vector<uint8_t> BMPData;
 
 	BMP(const std::vector<uint8_t>& RawData);
-};
+};//deprecated
 
 struct PixelArray
 {
@@ -52,5 +52,5 @@ struct BMPPixel
 
 	std::vector<PixelArray> PixelArrayData;
 
-	BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray);
+	BMPPixel(const std::vector<uint8_t>& RawData, const int _RowsPerArray, const int _ColumnsPerArray);
 };

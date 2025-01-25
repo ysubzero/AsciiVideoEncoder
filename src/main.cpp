@@ -20,14 +20,14 @@ static bool video(const std::string& vidname)
 {
 	const std::vector<std::string> videoExtensions = { ".mp4", ".avi", ".mkv", ".mov", ".flv", ".webm", ".mpg", ".mpeg", ".wmv" };
 
-	size_t dotPos = vidname.rfind('.');
+	const size_t dotPos = vidname.rfind('.');
 	if (dotPos == std::string::npos)
 	{
 		std::print(std::cerr, "Invalid file.\n");
 		return false;
 	}
 
-	std::string extension = vidname.substr(dotPos);
+	const std::string extension = vidname.substr(dotPos);
 
 	return std::find(videoExtensions.begin(), videoExtensions.end(), extension) != videoExtensions.end();
 }
@@ -37,15 +37,12 @@ static void ConvertFile(const std::vector<std::string>& split, const size_t star
 	auto func = color ? static_cast<void(*)(const std::string&, const std::string&, const int, const int)>(&ASC::ColorImage)
 		: static_cast<void(*)(const std::string&, const std::string&, const int, const int)>(&ASC::AsciiImage);
 
-		for (uint32_t i = start; i < end; i++)
+		for (size_t i = start; i < end; i++)
 		{
-			if (!terminate_program)
-			{
-				std::string file = split[i];
-				func(directory + "\\" + file, directory + "\\ASCII" + file, 4, 8);
-				std::print("Converted {}\r", file);
-			}
-			else {break;}
+			if (terminate_program) { break; }
+			std::string file = split[i];
+			func(directory + "\\" + file, directory + "\\ASCII" + file, 4, 8);
+			std::print("Converted {}\r", file);
 		}
 }
 
@@ -55,14 +52,8 @@ static void thread(std::vector<std::thread>& threads, const std::vector<std::str
 
 	for (size_t i = 0; i < max_threads; ++i)
 	{
-		size_t end;
-		size_t start = i * vect_size;
-
-		if (i < max_threads - 1) 
-		{
-			end = (i + 1) * vect_size;
-		}
-		else {end = outputfiles.size();}
+		const size_t end = i < max_threads - 1 ? (i + 1) * vect_size : outputfiles.size();
+		const size_t start = i * vect_size;
 
 		threads.emplace_back(ConvertFile, outputfiles, start, end, directory, color);
 	}
@@ -163,24 +154,22 @@ static int Console(const std::string& vidname, const std::string& directory, con
 		const int sleep_t = (1000 / framerate) - 15;
 		for (auto& s : outputfiles)
 		{
-			if (!terminate_program)
-			{
-				if (color)
-				{
-					ASC::ColorConsole(directory + "\\" + s, 8, 16);
-				}
-				else
-				{
-					ASC::Console(directory + "\\" + s, 8, 16);
-				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(sleep_t));
-			}
-			else
+			if (terminate_program)
 			{
 				std::print("\033[0m");
 				std::print("Terminated\n");
 				return 1;
 			}
+
+			if (color)
+			{
+				ASC::ColorConsole(directory + "\\" + s, 8, 16);
+			}
+			else
+			{
+				ASC::Console(directory + "\\" + s, 8, 16);
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(sleep_t));
 		}
 	}
 
@@ -218,12 +207,11 @@ static int AsciiImage(const std::string& vidname, const std::string& directory, 
 	return 0;
 }
 
-int Text(const std::string& vidname, const std::string& directory, const int detail, const bool color)
+int Text(const std::string& vidname, const std::string& directory, const int detail, const bool color) 	//color remains unused for now.
 {
-	//color remains unused for now.
 	if (video(vidname))
 	{
-		std::cerr << "Invalid Type\n";
+		std::print(std::cerr,"Invalid Type\n");
 		return 1;
 	}
 
@@ -342,11 +330,11 @@ For a detail of 4 it would be: 4 x 8 = 32 pixels mapped to each ASCII character.
 	}
 	catch (const std::invalid_argument& e)
 	{
-		std::print(std::cerr, "Invalid framerate/detail."); return 1;
+		std::print(std::cerr, "Invalid framerate/detail. {}\n", e.what()); return 1;
 	}
 	catch (const std::out_of_range& e)
 	{
-		std::print(std::cerr, "Framerate/detail out of range."); return 1;
+		std::print(std::cerr, "Framerate/detail out of range. {}\n", e.what()); return 1;
 	}
 
 	if (frate > 60 || frate <= 0)
@@ -362,13 +350,13 @@ For a detail of 4 it would be: 4 x 8 = 32 pixels mapped to each ASCII character.
 	}
 	else
 	{
-		std::print(std::cerr, "Not a function.\n Use -h to list all available functions.");
+		std::print(std::cerr, "Not a function.\n Use -h to list all available functions.\n");
 		FSys::deleteTemporary(homefolder); return 1;
 	}
 
 	if (result == 1)
 	{
-		std::string outcerr = terminate_program ? "Clearing cache..." : "Failure: Error occured.";
+		std::string outcerr = terminate_program ? "Clearing cache...\n" : "Failure: Error occured.\n";
 		std::print(std::cerr, "{}", outcerr);
 		FSys::deleteTemporary(homefolder); return 1;
 	}

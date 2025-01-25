@@ -34,26 +34,22 @@ BMP::BMP(const std::vector<uint8_t>& RawData)
 	constexpr uint64_t bytesperpixel = 3;
 
 	uint64_t rowWidth = header.width_px * bytesperpixel;
-	uint64_t padding = 0;
-	if (rowWidth % 4 != 0)
-	{
-		padding = 4 - (rowWidth % 4);
-		rowWidth += padding;
-	}
+	const uint64_t padding = rowWidth % 4 != 0 ? 4 - (rowWidth % 4) : 0;
+	rowWidth += padding;
 
 	{
-		int iter = 0;
+		uint64_t iter = 0;
 		BMPData.resize(header.height_px * (rowWidth - padding));
-		for (int i = 0; i < header.height_px; ++i)
+		for (uint64_t i = 0; i < header.height_px; ++i)
 		{
-			for (int j = i * rowWidth; j < (i * rowWidth) + rowWidth - padding; ++j)
+			for (uint64_t j = i * rowWidth; j < (i * rowWidth) + rowWidth - padding; ++j)
 			{
 				BMPData[iter] = RawData[j+54];
-				iter++;
+				++iter;
 			}
 		}
 	}
-}
+}//deprecated
 
 PixelArray::PixelArray(const uint8_t _avgred, const uint8_t _avggreen, const uint8_t _avgblue, const uint8_t _avgint) :
 	AverageRed(_avgred),
@@ -62,48 +58,56 @@ PixelArray::PixelArray(const uint8_t _avgred, const uint8_t _avggreen, const uin
 	AverageIntensity(_avgint)
 {}
 
-BMPPixel::BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray) :
-	width_px(_bmp.header.width_px),
-	height_px(_bmp.header.height_px),
+BMPPixel::BMPPixel(const std::vector<uint8_t>& RawData, const int _RowsPerArray, const int _ColumnsPerArray) :
+	width_px(static_cast<int32_t>(RawData[18]) | (static_cast<int32_t>(RawData[19]) << 8) |
+		(static_cast<int32_t>(RawData[20]) << 16) | (static_cast<int32_t>(RawData[21]) << 24)),
+	height_px(static_cast<int32_t>(RawData[22]) | (static_cast<int32_t>(RawData[23]) << 8) |
+		(static_cast<int32_t>(RawData[24]) << 16) | (static_cast<int32_t>(RawData[25]) << 24)),
 	RowsPerArray(_RowsPerArray),
 	ColumnsPerArray(_ColumnsPerArray)
 {
 	constexpr uint64_t bytesperpixel = 3;
 
+	const uint64_t rowWidth = width_px * bytesperpixel;
+	const uint64_t padding = rowWidth % 4 != 0 ? 4 - (rowWidth % 4) : 0;
+
 	for (int i = height_px - 1; i >= 0; i -= ColumnsPerArray)
 	{
-		for (int j = (((i + 1) * width_px) * 3) - 1; j >= ((i * width_px + RowsPerArray - 1) * 3); j -= RowsPerArray * 3)
+		const int startpixel = ((i + 1) * width_px) * 3 + i * padding + 53;
+		const int endpixel = (i * width_px + RowsPerArray - 1) * 3 + i * padding + 54;
+		for (int j = startpixel; j >= endpixel; j -= RowsPerArray * 3)
 		{
 			int id = 1;
 
-			uint32_t SumRed = _bmp.BMPData[j];
-			uint32_t SumGreen = _bmp.BMPData[j - 1];
-			uint32_t SumBlue = _bmp.BMPData[j - 2];
+			uint32_t SumRed = RawData[j];
+			uint32_t SumGreen = RawData[j - 1];
+			uint32_t SumBlue = RawData[j - 2];
 
-			for (int k = 0; k < RowsPerArray; ++k)
+			for (int k = 0; k < RowsPerArray; ++k) // x from j (origin)
 			{
-				for (int l = 0; l < ColumnsPerArray; ++l)
+				for (int l = 0; l < ColumnsPerArray; ++l) // y from j (origin)
 				{
-					int idx = j - (((l * width_px) + k) * 3);
-					if (idx < _bmp.BMPData.size() && idx > 1)
+					const int idx = j - (((l * width_px) + k) * 3) - l * padding;
+					if (idx == j || idx >= RawData.size() || idx < 56 || idx < ((i - l) * width_px + RowsPerArray - 1) * 3 + (i - l) * padding + 56)
 					{
-						SumRed += _bmp.BMPData[idx];
-						SumGreen += _bmp.BMPData[idx - 1];
-						SumBlue += _bmp.BMPData[idx - 2];
-						++id;
+						continue;
 					}
+					SumRed += RawData[idx];
+					SumGreen += RawData[idx - 1];
+					SumBlue += RawData[idx - 2];
+					++id;
 				}
 			}
 
-			uint8_t AverageRed = SumRed / id;
-			uint8_t AverageGreen = SumGreen / id;
-			uint8_t AverageBlue = SumBlue / id;
-			uint8_t AverageIntensity = static_cast<uint32_t>(0.2126 * SumRed + 0.7152 * SumGreen + 0.0722 * SumBlue) / id;
+			const uint8_t AverageRed = SumRed / id;
+			const uint8_t AverageGreen = SumGreen / id;
+			const uint8_t AverageBlue = SumBlue / id;
+			const uint8_t AverageIntensity = static_cast<uint32_t>(0.2126 * SumRed + 0.7152 * SumGreen + 0.0722 * SumBlue) / id;
 
 			PixelArrayData.emplace_back(PixelArray(AverageRed, AverageGreen, AverageBlue, AverageIntensity));
-			pixelArrayColumns++;
+			++pixelArrayColumns;
 		}
-		pixelArrayRows++;
+		++pixelArrayRows;
 	}
 	pixelArrayColumns /= pixelArrayRows;
 }

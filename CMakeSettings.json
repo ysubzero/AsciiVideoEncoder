@@ -6,32 +6,45 @@
             "configurationType": "Release",
             "buildRoot": "${projectDir}\\out\\build\\${name}",
             "installRoot": "${projectDir}\\out\\install\\${name}",
-            "cmakeCommandArgs": "-DCMAKE_CXX_FLAGS=\" /O2 /EHsc -Wno-microsoft-include\"",
+            "cmakeCommandArgs": "-DCMAKE_CXX_FLAGS=\"-Wno-microsoft-include  -flto -march=native -O3\"",
             "buildCommandArgs": "",
             "ctestCommandArgs": "",
-            "inheritEnvironments": [ "clang_cl_x64_x64" ]
+            "inheritEnvironments": [ "clang_cl_x64_x64" ],
+            "variables": [
+                {
+                    "name": "CMAKE_C_COMPILER",
+                    "value": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin/clang.exe",
+                    "type": "STRING"
+                },
+                {
+                    "name": "CMAKE_CXX_COMPILER",
+                    "value": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin/clang++.exe",
+                    "type": "STRING"
+                }
+            ]
         },
         {
-            "name": "x64-Release",
+            "name": "x64-Windows-Release",
             "generator": "Ninja",
             "configurationType": "Release",
             "buildRoot": "${projectDir}\\out\\build\\${name}",
             "installRoot": "${projectDir}\\out\\install\\${name}",
-            "cmakeCommandArgs": "",
+            "cmakeCommandArgs": "-DCMAKE_CXX_FLAGS=\"-Wno-microsoft-include -flto -O3\"",
             "buildCommandArgs": "",
             "ctestCommandArgs": "",
-            "inheritEnvironments": [ "msvc_x64_x64" ]
-        },
-        {
-            "name": "x64-Debug",
-            "generator": "Ninja",
-            "configurationType": "Debug",
-            "buildRoot": "${projectDir}\\out\\build\\${name}",
-            "installRoot": "${projectDir}\\out\\install\\${name}",
-            "cmakeCommandArgs": "",
-            "buildCommandArgs": "",
-            "ctestCommandArgs": "",
-            "inheritEnvironments": [ "msvc_x64_x64" ]
+            "inheritEnvironments": [ "clang_cl_x64_x64" ],
+            "variables": [
+                {
+                    "name": "CMAKE_C_COMPILER",
+                    "value": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin/clang.exe",
+                    "type": "STRING"
+                },
+                {
+                    "name": "CMAKE_CXX_COMPILER",
+                    "value": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin/clang++.exe",
+                    "type": "STRING"
+                }
+            ]
         },
         {
             "name": "x64-Release-Assembly",

@@ -44,9 +44,7 @@ void ASC::Text(const std::string& filename, const std::string& outputname, const
 
 	const std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
 
-	const BMP bmp(rawData);
-
-	const BMPPixel bmppixel(bmp, detail_x, detail_y);
+	const BMPPixel bmppixel(rawData, detail_x, detail_y);
 
 	std::string result = "";
 
@@ -108,12 +106,9 @@ void ASC::BMPAscii(const BMPPixel& bmppixel, const std::string& path)
 	const uint32_t  image_size_bytes = (bmppixel.pixelArrayColumns * 8) * (bmppixel.pixelArrayRows * 16) * 3;
 	const uint32_t  size = image_size_bytes + 54;
 
-	float image_aspect_ratio = static_cast<float>(bmppixel.pixelArrayColumns * 8) /
-		static_cast<float>(bmppixel.pixelArrayRows * 16);
-
-	float print_width_meters = 0.2f;
-
-	float print_height_meters = print_width_meters / image_aspect_ratio;
+	const float image_aspect_ratio = static_cast<float>(bmppixel.pixelArrayColumns * 8) / static_cast<float>(bmppixel.pixelArrayRows * 16);
+	constexpr float print_width_meters = 0.2f;
+	const float print_height_meters = print_width_meters / image_aspect_ratio;
 
 	const int32_t x_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayColumns * 8) / print_width_meters);
 	const int32_t y_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayRows * 16) / print_height_meters);
@@ -202,8 +197,8 @@ void ASC::BMPAscii(const BMPPixel& bmppixel, const std::string& path)
 			{
 				for (int i{ bmppixel.pixelArrayColumns - 1 }; i >= 0; --i)
 				{
-					int id = row * bmppixel.pixelArrayColumns + i;
-					uint32_t intensity = bmppixel.PixelArrayData[id].AverageIntensity / 32;
+					const int id = row * bmppixel.pixelArrayColumns + i;
+					const uint32_t intensity = bmppixel.PixelArrayData[id].AverageIntensity / 32;
 
 					const std::array<uint8_t, 24>& bitmap = getmap(j, intensity);
 
@@ -226,7 +221,7 @@ void ASC::BMPAscii(const BMPPixel& bmppixel, const std::string& path)
 	}
 	else
 	{
-		std::print(std::cerr,"Error: Could not open output file.");
+		std::print(std::cerr,"Error: Could not open output file.\n");
 	}
 }
 
@@ -246,12 +241,9 @@ void ASC::BMPColor(const BMPPixel& bmppixel, const std::string& path)
 	const uint32_t  image_size_bytes = (bmppixel.pixelArrayColumns * 8) * (bmppixel.pixelArrayRows * 16) * 3;
 	const uint32_t  size = image_size_bytes + 54;
 
-	float image_aspect_ratio = static_cast<float>(bmppixel.pixelArrayColumns * 8) /
-		static_cast<float>(bmppixel.pixelArrayRows * 16);
-
-	float print_width_meters = 0.2f;
-
-	float print_height_meters = print_width_meters / image_aspect_ratio;
+	const float image_aspect_ratio = static_cast<float>(bmppixel.pixelArrayColumns * 8) / static_cast<float>(bmppixel.pixelArrayRows * 16);
+	constexpr float print_width_meters = 0.2f;
+	const float print_height_meters = print_width_meters / image_aspect_ratio;
 
 	const int32_t x_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayColumns * 8) / print_width_meters);
 	const int32_t y_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayRows * 16) / print_height_meters);
@@ -340,22 +332,14 @@ void ASC::BMPColor(const BMPPixel& bmppixel, const std::string& path)
 			{
 				for (int i{ bmppixel.pixelArrayColumns - 1 }; i >= 0; --i)
 				{
-					int id = row * bmppixel.pixelArrayColumns + i;
-					uint32_t intensity = bmppixel.PixelArrayData[id].AverageIntensity / 32;
+					const int id = row * bmppixel.pixelArrayColumns + i;
+					const uint32_t intensity = bmppixel.PixelArrayData[id].AverageIntensity / 32;
 
-					float avg = static_cast<float>(bmppixel.PixelArrayData[id].AverageRed + bmppixel.PixelArrayData[id].AverageGreen + bmppixel.PixelArrayData[id].AverageBlue) / 3.0f;
+					const float avg = static_cast<float>(bmppixel.PixelArrayData[id].AverageRed + bmppixel.PixelArrayData[id].AverageGreen + bmppixel.PixelArrayData[id].AverageBlue) / 3.0f;
 
-					float red_dev = 0;
-					float green_dev = 0;
-					float blue_dev = 0;
-
-					if (avg != 0)
-					{
-						red_dev = static_cast<float>(bmppixel.PixelArrayData[id].AverageRed) / avg;
-						green_dev = static_cast<float>(bmppixel.PixelArrayData[id].AverageGreen) / avg;
-						blue_dev = static_cast<float>(bmppixel.PixelArrayData[id].AverageBlue) / avg;
-					}
-
+					const float red_dev = avg != 0 ? static_cast<float>(bmppixel.PixelArrayData[id].AverageRed) / avg : 0;
+					const float green_dev = avg != 0 ? static_cast<float>(bmppixel.PixelArrayData[id].AverageGreen) / avg : 0;
+					const float blue_dev = avg!= 0 ? static_cast<float>(bmppixel.PixelArrayData[id].AverageBlue) / avg : 0;
 
 					const std::array<uint8_t, 24>& bitmap = getmap(j, intensity);
 
@@ -380,7 +364,7 @@ void ASC::BMPColor(const BMPPixel& bmppixel, const std::string& path)
 	}
 	else
 	{
-		std::print(std::cerr, "Error: Could not open output file.");
+		std::print(std::cerr, "Error: Could not open output file.\n");
 	}
 }
 
@@ -390,9 +374,7 @@ void ASC::AsciiImage(const std::string& filename, const std::string& outfilename
 
 	const std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
 
-	const BMP bmp(rawData);
-
-	const BMPPixel bmppixel(bmp, detail_x, detail_y);
+	const BMPPixel bmppixel(rawData, detail_x, detail_y);
 
 	ASC::BMPAscii(bmppixel, outfilename);
 }
@@ -403,9 +385,7 @@ void ASC::ColorImage(const std::string& filename, const std::string& outfilename
 
 	const std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
 
-	const BMP bmp(rawData);
-
-	const BMPPixel bmppixel(bmp, detail_x, detail_y);
+	const BMPPixel bmppixel(rawData, detail_x, detail_y);
 
 	ASC::BMPColor(bmppixel, outfilename);
 }
@@ -416,9 +396,7 @@ void ASC::Console(const std::string& filename, const int detail_x, const int det
 
 	const std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
 
-	const BMP bmp(rawData);
-
-	const BMPPixel bmppixel(bmp, detail_x, detail_y);
+	const BMPPixel bmppixel(rawData, detail_x, detail_y);
 
 	std::string result = "";
 
@@ -468,9 +446,7 @@ void ASC::ColorConsole(const std::string& filename, const int detail_x, const in
 
 	const std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
 
-	const BMP bmp(rawData);
-
-	const BMPPixel bmppixel(bmp, detail_x, detail_y);
+	const BMPPixel bmppixel(rawData, detail_x, detail_y);
 
 	std::string result = "";
 
