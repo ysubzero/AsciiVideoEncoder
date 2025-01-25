@@ -31,7 +31,7 @@ BMP::BMP(const std::vector<uint8_t>& RawData)
 		(static_cast<uint32_t>(RawData[52]) << 16) | (static_cast<uint32_t>(RawData[53]) << 24);
 
 
-	const uint64_t bytesperpixel = 3;
+	constexpr uint64_t bytesperpixel = 3;
 
 	uint64_t rowWidth = header.width_px * bytesperpixel;
 	uint64_t padding = 0;
@@ -55,12 +55,6 @@ BMP::BMP(const std::vector<uint8_t>& RawData)
 	}
 }
 
-Pixel::Pixel(const uint8_t _Red, const uint8_t _Green, const uint8_t _Blue):
-	Red(_Red),
-	Green(_Green),
-	Blue(_Blue)
-{}
-
 PixelArray::PixelArray(const uint8_t _avgred, const uint8_t _avggreen, const uint8_t _avgblue, const uint8_t _avgint) :
 	AverageRed(_avgred),
 	AverageGreen(_avggreen),
@@ -74,36 +68,28 @@ BMPPixel::BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsP
 	RowsPerArray(_RowsPerArray),
 	ColumnsPerArray(_ColumnsPerArray)
 {
-	const uint64_t bytesperpixel = 3;
+	constexpr uint64_t bytesperpixel = 3;
 
-	for (int i = _bmp.BMPData.size() - 1; i >= 2; i -= bytesperpixel)
+	for (int i = height_px - 1; i >= 0; i -= ColumnsPerArray)
 	{
-		PixelData.emplace_back(Pixel(_bmp.BMPData[i], _bmp.BMPData[i - 1], _bmp.BMPData[i - 2]));
-	}
-
-	for (int i = 0; i + ColumnsPerArray <= height_px; i += ColumnsPerArray)
-	{
-		for (int j = i * width_px; j + RowsPerArray <= i * width_px + width_px; j += RowsPerArray)
+		for (int j = (((i + 1) * width_px) * 3) - 1; j >= ((i * width_px + RowsPerArray - 1) * 3); j -= RowsPerArray * 3)
 		{
 			int id = 1;
 
-			std::vector<Pixel> PixArray;
-
-			uint32_t SumRed = PixelData[j].Red;
-			uint32_t SumGreen = PixelData[j].Green;
-			uint32_t SumBlue = PixelData[j].Blue;
+			uint32_t SumRed = _bmp.BMPData[j];
+			uint32_t SumGreen = _bmp.BMPData[j - 1];
+			uint32_t SumBlue = _bmp.BMPData[j - 2];
 
 			for (int k = 0; k < RowsPerArray; ++k)
 			{
 				for (int l = 0; l < ColumnsPerArray; ++l)
 				{
-					int idx = j + (l * width_px) + k;
-					if (idx < PixelData.size())
+					int idx = j - (((l * width_px) + k) * 3);
+					if (idx < _bmp.BMPData.size() && idx > 1)
 					{
-						const Pixel& pix = PixelData[idx];
-						SumRed += pix.Red;
-						SumGreen += pix.Green;
-						SumBlue += pix.Blue;
+						SumRed += _bmp.BMPData[idx];
+						SumGreen += _bmp.BMPData[idx - 1];
+						SumBlue += _bmp.BMPData[idx - 2];
 						++id;
 					}
 				}
@@ -120,10 +106,4 @@ BMPPixel::BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsP
 		pixelArrayRows++;
 	}
 	pixelArrayColumns /= pixelArrayRows;
-}
-
-std::ostream& operator<<(std::ostream& os, const Pixel& p)
-{
-	os << "R:" << static_cast<int>(p.Red) << " G:" << static_cast<int>(p.Green) << " B:" << static_cast<int>(p.Blue);
-	return os;
 }

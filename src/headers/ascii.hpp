@@ -7,7 +7,7 @@ namespace Cha
 {
 	struct Dot
 	{
-		std::array<std::array<uint8_t, 24>, 16> bit_map =
+		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
 		{
 			{
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -32,7 +32,7 @@ namespace Cha
 
 	struct At
 	{
-		std::array<std::array<uint8_t, 24>, 16> bit_map =
+		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
 		{
 			{
 				{ 1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0 },
@@ -57,7 +57,7 @@ namespace Cha
 
 	struct Dash
 	{
-		std::array<std::array<uint8_t, 24>, 16> bit_map =
+		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
 		{
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -83,7 +83,7 @@ namespace Cha
 
 	struct Colon
 	{
-		std::array<std::array<uint8_t, 24>, 16> bit_map =
+		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
 		{
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -108,7 +108,7 @@ namespace Cha
 
 	struct Plus
 	{
-		std::array<std::array<uint8_t, 24>, 16> bit_map =
+		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
 		{
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -133,7 +133,7 @@ namespace Cha
 
 	struct Equal
 	{
-		std::array<std::array<uint8_t, 24>, 16> bit_map =
+		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
 		{
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -159,7 +159,7 @@ namespace Cha
 
 	struct Hashtag
 	{
-		std::array<std::array<uint8_t, 24>, 16> bit_map =
+		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
 		{
 			{
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -184,7 +184,7 @@ namespace Cha
 
 	struct Space
 	{
-		std::array<std::array<uint8_t, 24>, 16> bit_map =
+		const std::array<const std::array<uint8_t, 24>, 16> bit_map =
 		{
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },

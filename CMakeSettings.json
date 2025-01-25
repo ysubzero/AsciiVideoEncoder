@@ -36,7 +36,7 @@
         {
             "name": "x64-Release-Assembly",
             "generator": "Ninja",
-            "configurationType": "Release",
+            "configurationType": "RelWithDebInfo",
             "buildRoot": "${projectDir}\\out\\build\\${name}",
             "installRoot": "${projectDir}\\out\\install\\${name}",
             "cmakeCommandArgs": "-DCMAKE_CXX_FLAGS=\"/O3 /FAs /EHsc\"",

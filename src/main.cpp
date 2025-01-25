@@ -3,7 +3,7 @@
 
 const uint32_t max_threads = std::thread::hardware_concurrency();
 
-std::string signalhandle;
+std::string folder;
 
 std::atomic<bool> terminate_program(false);
 
@@ -12,13 +12,13 @@ void signal_handler(int signal)
 	terminate_program = true;
 	std::print("Terminating...\n");
 	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-	FSys::deleteTemporary(signalhandle);
+	FSys::deleteTemporary(folder);
 	std::exit(0);
 }
 
 static bool video(const std::string& vidname)
 {
-	std::vector<std::string> videoExtensions = { ".mp4", ".avi", ".mkv", ".mov", ".flv", ".webm", ".mpg", ".mpeg", ".wmv" };
+	const std::vector<std::string> videoExtensions = { ".mp4", ".avi", ".mkv", ".mov", ".flv", ".webm", ".mpg", ".mpeg", ".wmv" };
 
 	size_t dotPos = vidname.rfind('.');
 	if (dotPos == std::string::npos)
@@ -51,7 +51,7 @@ static void ConvertFile(const std::vector<std::string>& split, const size_t star
 
 static void thread(std::vector<std::thread>& threads, const std::vector<std::string>& outputfiles, const std::string& directory, const bool color)
 {
-	size_t vect_size = outputfiles.size() / max_threads;
+	const size_t vect_size = outputfiles.size() / max_threads;
 
 	for (size_t i = 0; i < max_threads; ++i)
 	{
@@ -82,7 +82,7 @@ static int AsciiVideo(const std::string& vidname, const std::string& directory, 
 	std::vector<std::thread> threads;
 	bool unconverted = true;
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = " + std::to_string(framerate) + ",scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
+	const std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = " + std::to_string(framerate) + ",scale=-1:720\" -pix_fmt bgr24 -y \"" + directory + "\\output_%05d.bmp\"";
 	std::print("Running ffmpeg...\n");
 
 	int ffmpeg_result = system(command.c_str());
@@ -97,13 +97,13 @@ static int AsciiVideo(const std::string& vidname, const std::string& directory, 
 	{
 		std::print("Command executed successfully!\n");
 
-		std::vector<std::string> outputfiles = FSys::OutputFiles(directory);
+		const std::vector<std::string> outputfiles = FSys::OutputFiles(directory);
 
-		auto start = std::chrono::high_resolution_clock::now();
+		const auto start = std::chrono::high_resolution_clock::now();
 		thread(threads, outputfiles, directory, color);
-		auto end = std::chrono::high_resolution_clock::now();
+		const auto end = std::chrono::high_resolution_clock::now();
 
-		std::chrono::duration<double> duration = end - start;
+		const std::chrono::duration<double> duration = end - start;
 		if (!terminate_program)
 		{
 			std::print("Done. This task took {} seconds.\n", duration.count());
@@ -115,7 +115,7 @@ static int AsciiVideo(const std::string& vidname, const std::string& directory, 
 	{
 		std::print("Running ffmpeg...\n");
 
-		std::string create_video = "ffmpeg -framerate "+ std::to_string(framerate) + " -i \"" + directory + "\\ASCIIoutput_%04d.bmp\" -i \"" + vidname + "\" -loglevel +error -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "\\asciioutput.mkv\"";
+		std::string create_video = "ffmpeg -framerate "+ std::to_string(framerate) + " -i \"" + directory + "\\ASCIIoutput_%05d.bmp\" -i \"" + vidname + "\" -loglevel +error -map 0:v:0 -map 1:a:0 -vf \"scale=1920:-2,setsar=1:1\" -c:v libx264 -r 24 -y \"" + directory + "\\asciioutput.mkv\"";
 
 		int ffmpeg_video = system(create_video.c_str());
 
@@ -134,7 +134,6 @@ static int AsciiVideo(const std::string& vidname, const std::string& directory, 
 
 static int Console(const std::string& vidname, const std::string& directory, const int framerate, const bool color)
 {
-	//color remains unused for now.
 	if (!video(vidname))
 	{
 		std::print(std::cerr, "Invalid Type\n");
@@ -145,7 +144,7 @@ static int Console(const std::string& vidname, const std::string& directory, con
 	threads.resize(max_threads);
 	bool unconverted = true;
 
-	std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = " + std::to_string(framerate) + ",scale=-1:640\" -pix_fmt bgr24 -y \"" + directory + "\\output_%04d.bmp\"";
+	const std::string command = "ffmpeg -i \"" + vidname + "\" -loglevel +error -vf \"fps = " + std::to_string(framerate) + ",scale=-1:640\" -pix_fmt bgr24 -y \"" + directory + "\\output_%05d.bmp\"";
 	std::print("Running ffmpeg...\n");
 
 	int ffmpeg_result = system(command.c_str());
@@ -159,23 +158,33 @@ static int Console(const std::string& vidname, const std::string& directory, con
 	else
 	{
 		std::print("Command executed successfully!\n");
-		std::vector<std::string> outputfiles = FSys::OutputFiles(directory);
+		const std::vector<std::string> outputfiles = FSys::OutputFiles(directory);
 		clearScreen();
 		const int sleep_t = (1000 / framerate) - 15;
 		for (auto& s : outputfiles)
 		{
 			if (!terminate_program)
 			{
-				ASC::Console(directory + "\\" + s, 8, 16);
+				if (color)
+				{
+					ASC::ColorConsole(directory + "\\" + s, 8, 16);
+				}
+				else
+				{
+					ASC::Console(directory + "\\" + s, 8, 16);
+				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(sleep_t));
 			}
 			else
 			{
+				std::print("\033[0m");
+				std::print("Terminated\n");
 				return 1;
 			}
 		}
 	}
 
+	std::print("\033[0m");
 	FSys::deleteTemporary(directory);
 	clearScreen();
 	return 0;
@@ -240,7 +249,7 @@ int main(int argc, char* argv[])
 {
 	if (argc >= 2 && std::string(argv[1]) == "-h")
 	{
-		std::print("Commands:\n\t-v: Outputs ASCII video.\n\t-i: Outputs ASCII image.\n\t-c: Outputs to Console.\n\t-t: Outputs to text.\n\t-k: Outputs Color Video.\n\t-j: Outputs Color Image.\n\n\
+		std::print("Commands:\n\t-v: Outputs ASCII video.\n\t-i: Outputs ASCII image.\n\t-c: Outputs to Console.\n\t-t: Outputs to text.\n\t-k: Outputs Color Video.\n\t-j: Outputs Color Image.\n\t-m: Outputs to Console, colored.\n\
 Correct format for command line input is: AsciiVideoEncoder [Command] [Filename] [Framerate/detail].\n\
 Video commands use the fourth argument as framerate while image commands use the fourth argument as the detail (how the pixels are mapped to an ASCII character).\n\
 For a detail of 4 it would be: 4 x 8 = 32 pixels mapped to each ASCII character.");
@@ -299,6 +308,7 @@ For a detail of 4 it would be: 4 x 8 = 32 pixels mapped to each ASCII character.
 	functionMap["-t"] = Text;
 	functionMap["-k"] = AsciiVideo;
 	functionMap["-j"] = AsciiImage;
+	functionMap["-m"] = Console;
 
 	std::unordered_map<std::string, bool> colorMap;
 	colorMap["-v"] = false;
@@ -307,8 +317,9 @@ For a detail of 4 it would be: 4 x 8 = 32 pixels mapped to each ASCII character.
 	colorMap["-t"] = false;
 	colorMap["-k"] = true;
 	colorMap["-j"] = true;
+	colorMap["-m"] = true;
 
-	signalhandle = homefolder;
+	folder = homefolder;
 	std::signal(SIGINT, signal_handler);
 	std::signal(SIGTERM, signal_handler);
 

@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 #include <cstdint>
 #include <array>
 #include <vector>
@@ -30,19 +29,6 @@ struct BMP {
 	BMP(const std::vector<uint8_t>& RawData);
 };
 
-struct Pixel
-{
-	const uint8_t Red;
-	const uint8_t Green;
-	const uint8_t Blue;
-	Pixel(const uint8_t _Red, const uint8_t _Green, const uint8_t _Blue);
-
-	friend std::ostream& operator<<(std::ostream& os, const Pixel& p);
-
-};
-
-std::ostream& operator<<(std::ostream& os, const Pixel& p);
-
 struct PixelArray
 {
 	const uint8_t AverageRed;
@@ -64,7 +50,6 @@ struct BMPPixel
 	const int32_t  width_px;
 	const int32_t  height_px;
 
-	std::vector<Pixel> PixelData;
 	std::vector<PixelArray> PixelArrayData;
 
 	BMPPixel(const BMP& _bmp, const int _RowsPerArray, const int _ColumnsPerArray);

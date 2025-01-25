@@ -1,13 +1,13 @@
 #include "headers/functions.hpp"
 
-const Cha::Dash dash;
-const Cha::At at;
-const Cha::Colon colon;
-const Cha::Dot dot;
-const Cha::Equal equal;
-const Cha::Hashtag hashtag;
-const Cha::Plus plus;
-const Cha::Space space;
+constexpr Cha::Dash dash;
+constexpr Cha::At at;
+constexpr Cha::Colon colon;
+constexpr Cha::Dot dot;
+constexpr Cha::Equal equal;
+constexpr Cha::Hashtag hashtag;
+constexpr Cha::Plus plus;
+constexpr Cha::Space space;
 
 static const std::array<uint8_t, 24>& getmap(const int j, const uint32_t intensity)
 {
@@ -42,11 +42,11 @@ void ASC::Text(const std::string& filename, const std::string& outputname, const
 {
 	std::ifstream input(filename, std::ios::binary);
 
-	std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
+	const std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
 
-	BMP bmp(rawData);
+	const BMP bmp(rawData);
 
-	BMPPixel bmppixel(bmp, detail_x, detail_y);
+	const BMPPixel bmppixel(bmp, detail_x, detail_y);
 
 	std::string result = "";
 
@@ -95,18 +95,18 @@ void ASC::Text(const std::string& filename, const std::string& outputname, const
 void ASC::BMPAscii(const BMPPixel& bmppixel, const std::string& path)
 {
 #pragma region Header Data
-	uint16_t  type = 0x4D42;
-	uint16_t  reserved1 = 0;
-	uint16_t  reserved2 = 0;
-	uint32_t  offset = 54;
-	uint32_t  dib_header_size = 40;
-	int32_t   width_px = static_cast<int32_t>((bmppixel.PixelArrayData.size() / bmppixel.pixelArrayRows) * 8);
-	int32_t   height_px = static_cast<int32_t>((bmppixel.PixelArrayData.size() / bmppixel.pixelArrayColumns) * 16);
-	uint16_t  num_planes = 1;
-	uint16_t  bits_per_pixel = 24;
-	uint32_t  compression = 0;
-	uint32_t  image_size_bytes = (bmppixel.pixelArrayColumns * 8) * (bmppixel.pixelArrayRows * 16) * 3;
-	uint32_t  size = image_size_bytes + 54;
+	constexpr uint16_t  type = 0x4D42;
+	constexpr uint16_t  reserved1 = 0;
+	constexpr uint16_t  reserved2 = 0;
+	constexpr uint32_t  offset = 54;
+	constexpr uint32_t  dib_header_size = 40;
+	const int32_t   width_px = static_cast<int32_t>((bmppixel.PixelArrayData.size() / bmppixel.pixelArrayRows) * 8);
+	const int32_t   height_px = static_cast<int32_t>((bmppixel.PixelArrayData.size() / bmppixel.pixelArrayColumns) * 16);
+	constexpr uint16_t  num_planes = 1;
+	constexpr uint16_t  bits_per_pixel = 24;
+	constexpr uint32_t  compression = 0;
+	const uint32_t  image_size_bytes = (bmppixel.pixelArrayColumns * 8) * (bmppixel.pixelArrayRows * 16) * 3;
+	const uint32_t  size = image_size_bytes + 54;
 
 	float image_aspect_ratio = static_cast<float>(bmppixel.pixelArrayColumns * 8) /
 		static_cast<float>(bmppixel.pixelArrayRows * 16);
@@ -115,11 +115,11 @@ void ASC::BMPAscii(const BMPPixel& bmppixel, const std::string& path)
 
 	float print_height_meters = print_width_meters / image_aspect_ratio;
 
-	int32_t x_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayColumns * 8) / print_width_meters);
-	int32_t y_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayRows * 16) / print_height_meters);
+	const int32_t x_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayColumns * 8) / print_width_meters);
+	const int32_t y_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayRows * 16) / print_height_meters);
 
-	uint32_t  num_colors = 0;
-	uint32_t  important_colors = 0;
+	constexpr uint32_t  num_colors = 0;
+	constexpr uint32_t  important_colors = 0;
 
 	std::vector<uint8_t> bmp(size);
 
@@ -233,18 +233,18 @@ void ASC::BMPAscii(const BMPPixel& bmppixel, const std::string& path)
 void ASC::BMPColor(const BMPPixel& bmppixel, const std::string& path)
 {
 #pragma region Header Data
-	uint16_t  type = 0x4D42;
-	uint16_t  reserved1 = 0;
-	uint16_t  reserved2 = 0;
-	uint32_t  offset = 54;
-	uint32_t  dib_header_size = 40;
-	int32_t   width_px = static_cast<int32_t>((bmppixel.PixelArrayData.size() / bmppixel.pixelArrayRows) * 8);
-	int32_t   height_px = static_cast<int32_t>((bmppixel.PixelArrayData.size() / bmppixel.pixelArrayColumns) * 16);
-	uint16_t  num_planes = 1;
-	uint16_t  bits_per_pixel = 24;
-	uint32_t  compression = 0;
-	uint32_t  image_size_bytes = (bmppixel.pixelArrayColumns * 8) * (bmppixel.pixelArrayRows * 16) * 3;
-	uint32_t  size = image_size_bytes + 54;
+	constexpr uint16_t  type = 0x4D42;
+	constexpr uint16_t  reserved1 = 0;
+	constexpr uint16_t  reserved2 = 0;
+	constexpr uint32_t  offset = 54;
+	constexpr uint32_t  dib_header_size = 40;
+	const int32_t   width_px = static_cast<int32_t>((bmppixel.PixelArrayData.size() / bmppixel.pixelArrayRows) * 8);
+	const int32_t   height_px = static_cast<int32_t>((bmppixel.PixelArrayData.size() / bmppixel.pixelArrayColumns) * 16);
+	constexpr uint16_t  num_planes = 1;
+	constexpr uint16_t  bits_per_pixel = 24;
+	constexpr uint32_t  compression = 0;
+	const uint32_t  image_size_bytes = (bmppixel.pixelArrayColumns * 8) * (bmppixel.pixelArrayRows * 16) * 3;
+	const uint32_t  size = image_size_bytes + 54;
 
 	float image_aspect_ratio = static_cast<float>(bmppixel.pixelArrayColumns * 8) /
 		static_cast<float>(bmppixel.pixelArrayRows * 16);
@@ -253,11 +253,11 @@ void ASC::BMPColor(const BMPPixel& bmppixel, const std::string& path)
 
 	float print_height_meters = print_width_meters / image_aspect_ratio;
 
-	int32_t x_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayColumns * 8) / print_width_meters);
-	int32_t y_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayRows * 16) / print_height_meters);
+	const int32_t x_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayColumns * 8) / print_width_meters);
+	const int32_t y_resolution_ppm = static_cast<int32_t>((bmppixel.pixelArrayRows * 16) / print_height_meters);
 
-	uint32_t  num_colors = 0;
-	uint32_t  important_colors = 0;
+	constexpr uint32_t  num_colors = 0;
+	constexpr uint32_t  important_colors = 0;
 
 	std::vector<uint8_t> bmp(size);
 
@@ -388,11 +388,11 @@ void ASC::AsciiImage(const std::string& filename, const std::string& outfilename
 {
 	std::ifstream input(filename, std::ios::binary);
 
-	std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
+	const std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
 
-	BMP bmp(rawData);
+	const BMP bmp(rawData);
 
-	BMPPixel bmppixel(bmp, detail_x, detail_y);
+	const BMPPixel bmppixel(bmp, detail_x, detail_y);
 
 	ASC::BMPAscii(bmppixel, outfilename);
 }
@@ -401,11 +401,11 @@ void ASC::ColorImage(const std::string& filename, const std::string& outfilename
 {
 	std::ifstream input(filename, std::ios::binary);
 
-	std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
+	const std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
 
-	BMP bmp(rawData);
+	const BMP bmp(rawData);
 
-	BMPPixel bmppixel(bmp, detail_x, detail_y);
+	const BMPPixel bmppixel(bmp, detail_x, detail_y);
 
 	ASC::BMPColor(bmppixel, outfilename);
 }
@@ -414,11 +414,11 @@ void ASC::Console(const std::string& filename, const int detail_x, const int det
 {
 	std::ifstream input(filename, std::ios::binary);
 
-	std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
+	const std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
 
-	BMP bmp(rawData);
+	const BMP bmp(rawData);
 
-	BMPPixel bmppixel(bmp, detail_x, detail_y);
+	const BMPPixel bmppixel(bmp, detail_x, detail_y);
 
 	std::string result = "";
 
@@ -426,7 +426,7 @@ void ASC::Console(const std::string& filename, const int detail_x, const int det
 	{
 		for (int i{ (row + 1) * bmppixel.pixelArrayColumns - 1 }; i >= row * bmppixel.pixelArrayColumns; --i)
 		{
-			uint8_t intensity = bmppixel.PixelArrayData[i].AverageIntensity / 32;
+			const uint8_t intensity = bmppixel.PixelArrayData[i].AverageIntensity / 32;
 
 			switch (intensity)
 			{
@@ -460,6 +460,59 @@ void ASC::Console(const std::string& filename, const int detail_x, const int det
 	}
 	std::print("\033[H");
 	std::print("{0}", result);
-	std::cout << std::flush;
 }
+
+void ASC::ColorConsole(const std::string& filename, const int detail_x, const int detail_y)
+{
+	std::ifstream input(filename, std::ios::binary);
+
+	const std::vector<uint8_t> rawData(std::istreambuf_iterator<char>(input), {});
+
+	const BMP bmp(rawData);
+
+	const BMPPixel bmppixel(bmp, detail_x, detail_y);
+
+	std::string result = "";
+
+	for (int row{ 0 }; row < bmppixel.pixelArrayRows; ++row)
+	{
+		for (int i{ (row + 1) * bmppixel.pixelArrayColumns - 1 }; i >= row * bmppixel.pixelArrayColumns; --i)
+		{
+			const std::string color = "\033[38;2;" + std::to_string(bmppixel.PixelArrayData[i].AverageRed) + ';' + std::to_string(bmppixel.PixelArrayData[i].AverageGreen) + ';' + std::to_string(bmppixel.PixelArrayData[i].AverageBlue) + 'm';
+			const uint8_t intensity = bmppixel.PixelArrayData[i].AverageIntensity / 32;
+
+			switch (intensity)
+			{
+			case 0:
+				result += " ";
+				break;
+			case 1:
+				result += color + '.';
+				break;
+			case 2:
+				result += color + ':';
+				break;
+			case 3:
+				result += color + '-';
+				break;
+			case 4:
+				result += color + '=';
+				break;
+			case 5:
+				result += color + '+';
+				break;
+			case 6:
+				result += color + '#';
+				break;
+			default:
+				result += color + '@';
+				break;
+			}
+		}
+		result += "\n";
+	}
+	std::print("\033[H");
+	std::print("{0}", result);
+}
+
 
