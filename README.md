@@ -20,12 +20,6 @@ argv[1] =
 
 -t to convert images into text files
 
--k for color video conversion
-
--j for color image conversion.
-
--m for colored terminal output.
-
 -h for help.
 
 argv[2] =
@@ -37,6 +31,12 @@ argv[3] =
 Desired level of detail for pictures / framerate for videos. Must be inbetween 1 and 60.
 
 The program will automatically save to C:\AsciiVideoEncoder if not given a settings.txt.
+
+Optional Arguments
+
+-no_color to not output any color.
+
+-no_audio to turn off audio.
 
 # Settings
 

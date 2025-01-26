@@ -383,7 +383,7 @@ void ASC::ColorImage(const std::string& filename, const std::string& outfilename
 	ASC::BMPColor(bmppixel, outfilename);
 }
 
-void ASC::Console(const std::string& filename, const int detail_x, const int detail_y)
+std::string ASC::Console(const std::string& filename, const int detail_x, const int detail_y)
 {
 	std::ifstream input(filename, std::ios::binary);
 
@@ -430,11 +430,10 @@ void ASC::Console(const std::string& filename, const int detail_x, const int det
 		}
 		result += "\n";
 	}
-	std::print("\033[H");
-	std::print("{0}", result);
+	return result;
 }
 
-void ASC::ColorConsole(const std::string& filename, const int detail_x, const int detail_y)
+std::string ASC::ColorConsole(const std::string& filename, const int detail_x, const int detail_y)
 {
 	std::ifstream input(filename, std::ios::binary);
 
@@ -482,8 +481,7 @@ void ASC::ColorConsole(const std::string& filename, const int detail_x, const in
 		}
 		result += "\n";
 	}
-	std::print("\033[H");
-	std::print("{0}", result);
+	return result;
 }
 
 
