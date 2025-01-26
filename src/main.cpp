@@ -1,8 +1,9 @@
-﻿#include "headers/AsciiVideoEncoder.hpp"
+﻿#pragma comment(lib, "winmm.lib")
+
+#include "headers/AsciiVideoEncoder.hpp"
 #include "headers/functions.hpp"
 #include <windows.h>
 #include <mmsystem.h>
-#pragma comment(lib, "winmm.lib")
 
 const uint32_t max_threads = std::thread::hardware_concurrency();
 
@@ -65,7 +66,7 @@ static void thread(std::vector<std::thread>& threads, const std::vector<std::str
 	for (auto& t : threads) {if (t.joinable()) { t.join(); }}
 }
 
-static void console_file(const std::vector<std::string>& split, const size_t start, const size_t end, const std::string& directory, const bool color, std::vector<std::string>& results)
+static void ConsoleFile(const std::vector<std::string>& split, const size_t start, const size_t end, const std::string& directory, const bool color, std::vector<std::string>& results)
 {
 	auto func = color ? &ASC::ColorConsole : &ASC::Console;
 
@@ -77,7 +78,7 @@ static void console_file(const std::vector<std::string>& split, const size_t sta
 	}
 }
 
-static void console_thread(std::vector<std::thread>& threads, const std::vector<std::string>& outputfiles, const std::string& directory, const bool color, std::vector<std::string>& results)
+static void ConsoleThread(std::vector<std::thread>& threads, const std::vector<std::string>& outputfiles, const std::string& directory, const bool color, std::vector<std::string>& results)
 {
 	const size_t vect_size = outputfiles.size() / max_threads;
 
@@ -86,7 +87,7 @@ static void console_thread(std::vector<std::thread>& threads, const std::vector<
 		const size_t end = i < max_threads - 1 ? (i + 1) * vect_size : outputfiles.size();
 		const size_t start = i * vect_size;
 
-		threads.emplace_back(console_file, outputfiles, start, end, directory, color, std::ref(results));
+		threads.emplace_back(ConsoleFile, outputfiles, start, end, directory, color, std::ref(results));
 	}
 
 	for (auto& t : threads) { if (t.joinable()) { t.join(); } }
@@ -199,7 +200,7 @@ static int Console(const std::string& vidname, const std::string& directory, con
 		const std::vector<std::string> outputfiles = FSys::OutputFiles(directory);
 		std::vector<std::string> results(outputfiles.size());
 		std::print("Loading to memory...\n");
-		console_thread(threads, outputfiles, directory, color, results);
+		ConsoleThread(threads, outputfiles, directory, color, results);
 		std::print("Loaded to memory!\n");
 		std::print("\033[H");
 		std::print("{}", results[0]);
@@ -211,8 +212,8 @@ static int Console(const std::string& vidname, const std::string& directory, con
 
 		if (audio)
 		{
-			std::string aname = directory + "\\output.wav";
-			PlaySound(TEXT(aname.c_str()), NULL, SND_FILENAME | SND_ASYNC);
+			std::string audio_name = directory + "\\output.wav";
+			PlaySound(TEXT(audio_name.c_str()), NULL, SND_FILENAME | SND_ASYNC);
 		}
 		for (auto& s : results)
 		{
@@ -295,7 +296,7 @@ int main(int argc, char* argv[])
 	if (argc >= 2 && std::string(argv[1]) == "-h")
 	{
 		std::print("Commands:\n\t-v: Outputs ASCII video.\n\t-i: Outputs ASCII image.\n\t-c: Outputs to Console.\n\t-t: Outputs to text.\n\
-Correct format for command line input is: AsciiVideoEncoder [Command] [Filename] [Framerate/detail] [Optional Arguments.\n\
+Correct format for command line input is: AsciiVideoEncoder [Command] [Filename] [Framerate/detail] [Optional Arguments.]\n\
 Video commands use the fourth argument as framerate while image commands use the fourth argument as the detail (how the pixels are mapped to an ASCII character).\n\
 For a detail of 4 it would be: 4 x 8 = 32 pixels mapped to each ASCII character.\n\
 \tOptional arguments are:\n\t-no_color: do not output color.\n\t-no_audio: do not output audio (recommended for console output.)");
