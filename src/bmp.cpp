@@ -20,6 +20,8 @@ BMPPixel::BMPPixel(const std::vector<uint8_t>& RawData, const int _RowsPerArray,
 	const uint64_t rowWidth = width_px * bytesperpixel;
 	const uint64_t padding = rowWidth % 4 != 0 ? 4 - (rowWidth % 4) : 0;
 
+	PixelArrayData.reserve(static_cast<size_t>(ceil(static_cast<double>(height_px) / ColumnsPerArray) * ceil(static_cast<double>(width_px) / RowsPerArray)));
+
 	for (int i = height_px - 1; i >= 0; i -= ColumnsPerArray)
 	{
 		const int startpixel = ((i + 1) * width_px) * 3 + i * padding + 53; // including padding and -1 to start at new row
